@@ -1,0 +1,4 @@
+self: play -> playmodutils 0.1
+
+require:
+    - play

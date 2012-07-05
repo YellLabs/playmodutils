@@ -1,0 +1,38 @@
+# Extracted from https://github.com/ulrich/macaron-factory/blob/master/.gitignore
+# Ignore all dotfiles...
+.*
+# except for .gitignore
+!.gitignore
+
+# Ignore Play! working directory #
+db
+eclipse
+log
+logs
+precompiled
+tmp
+test-result
+eclipse
+server.pid
+
+lib
+dist
+
+# code coverage
+cobertura.ser
+
+#modules
+modules/
+
+#netbeans
+nbproject
+
+# java dumps
+hs_*
+
+# ignore application.conf as modules should NOT have one, create one locally if you need to test
+conf/application.conf
+
+*.pyc
+/local_settings.py
+/version
