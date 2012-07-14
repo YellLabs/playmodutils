@@ -3,6 +3,8 @@ package utils.playmodutils;
 import java.util.ArrayList;
 import java.util.List;
 
+import models.playmodutils.GeoPoint;
+
 /* This class contains methods for Geospatial calculations */
 public class GeoHelper {
 

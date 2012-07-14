@@ -1,5 +1,21 @@
-# Default playmodutils messages
-# You can specialize this file for each language.
-# For exemple, for french create a messages.fr file
-
-#playmodutils.name=playmodutils
+# Server side logging message definitions should go here...
+#
+# adapter error messages
+CAPI_SRV_ERR_0001 = aim-api.url value is not found in application.conf
+CAPI_SRV_ERR_0002 = Request to aim-api failed.\nResponse status:%d\nUrl: %s\nBody:%s
+CAPI_SRV_ERR_0003 = Error loading version and dependency file information: %s
+CAPI_SRV_ERR_0004 = Resource version details not configure correctly.  Check that 'latestResourceVersion' and 'supportedResourceVersions' have been defined.
+CAPI_SRV_ERR_0005 = Unused
+CAPI_SRV_ERR_0006 = Unused
+CAPI_SRV_ERR_0007 = Unused
+CAPI_SRV_ERR_0008 = Unused
+CAPI_SRV_ERR_0009 = Unused
+CAPI_SRV_ERR_0010 = Resource version details not configure correctly.  Check that 'latestResourceVersion' and 'supportedResourceVersions' have been defined.
+CAPI_SRV_ERR_0011 = Unable to find an explicit version identifier in content type %s.
+CAPI_SRV_ERR_0012 = Unused
+CAPI_SRV_ERR_0013 = Unused
+CAPI_SRV_ERR_0014 = Unused
+CAPI_SRV_ERR_0015 = Unused
+CAPI_SRV_ERR_0016 = AIMAPIAdapter not configured properly: %s
+CAPI_SRV_ERR_0017 = Unused
+CAPI_SRV_ERR_0018 = Unused
