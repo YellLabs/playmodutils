@@ -37,7 +37,7 @@ public class BaseRestController extends Controller {
 		//will render bad paging if values of count and startpage exceed 46340. 
 		//This value should be a more than sufficient number of results when searching for nearby deals. 
 		if ((startPage != null && startPage > Math.sqrt(Integer.MAX_VALUE)) || (count != null && count > Math.sqrt(Integer.MAX_VALUE))) {
-			renderBadPaging();
+			renderBadPagingLimits();
 		}
 	}
 
