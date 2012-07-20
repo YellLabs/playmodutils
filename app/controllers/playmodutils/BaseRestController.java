@@ -55,6 +55,14 @@ public class BaseRestController extends Controller {
 		ErrorReport report = new ErrorReport(message);
 		renderJSON(report);
 	}
+
+	protected static void renderBadPagingLimits() {
+		response.status = Http.StatusCode.BAD_REQUEST;
+		ErrorMessage message = new ErrorMessage("CAPI_CLI_ERR_0008",
+		ErrorHelper.getMessage("CAPI_CLI_ERR_0008"));
+		ErrorReport report = new ErrorReport(message);
+		renderJSON(report);
+	}
 	
 	public static Gson getGsonParser() {
 		GsonBuilder b = new GsonBuilder();
