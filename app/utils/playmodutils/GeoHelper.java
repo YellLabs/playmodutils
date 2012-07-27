@@ -17,9 +17,13 @@ public static double calcDistanceBetweenPoints(double lat1, double lon1, double 
 		  dist = dist * 60 * 1.1515;
 		  if (unit == 'K') {
 		    dist = dist * 1.609344;
-		  } else if (unit == 'N') {
+		  }
+		  if (unit == 'm') {
+		    dist = dist * 1609.344;
+	      }
+		  else if (unit == 'N') {
 		  	dist = dist * 0.8684;
-		    }
+		  }
 		  return (dist);
 		}
 
