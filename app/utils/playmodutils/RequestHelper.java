@@ -1,5 +1,7 @@
 package utils.playmodutils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import play.i18n.Messages;
@@ -42,7 +44,16 @@ public class RequestHelper {
         // convert to a numeric id
         if (header == null)
             throw new HeaderNotFoundException();
-
+        
+        //play isn't handling comma separated multiple header values properly
+        if (header.values.size()==1 && header.value().indexOf(',')>0) {
+        	List vals = new ArrayList(); 
+        	for (String split : header.value().split(",")) {
+				vals.add(split.trim());
+			}        	
+        	return vals;
+        }
+        
         return header.values;
     }
 }
