@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import play.Logger;
+import play.Play;
 
 import net.sf.oval.Validator;
 import net.sf.oval.configuration.annotation.AbstractAnnotationCheck;
@@ -22,6 +23,18 @@ public class LocalizedRegExMatchCheck extends AbstractAnnotationCheck<LocalizedR
 
 	final static String mes = "validation.countrymatch";
     
+	private static final String ukPostcodeRegex = 
+		Play.configuration.getProperty("ukPostcodeRegex", "(GIR 0AA|[A-PR-UWYZ]([0-9][0-9A-HJKPS-UW]?|[A-HK-Y][0-9][0-9ABEHMNPRV-Y]?) ?[0-9][ABD-HJLNP-UW-Z]{0,2})");
+	
+	private static final String usPostcodeRegex = 
+		Play.configuration.getProperty("usPostcodeRegex", "^\\d{5}(-\\d{4})?$");
+	
+	private static final String caPostcodeRegex = 
+		Play.configuration.getProperty("caPostcodeRegex", "^[ABCEGHJKLMNPRSTVXY]{1}\\d{1}[A-Z]{1} *\\d{1}[A-Z]{1}\\d{1}$");
+		
+	private static final String esPostcodeRegex = 
+		Play.configuration.getProperty("esPostcodeRegex", "^([1-9]{2}|[0-9][1-9]|[1-9][0-9])[0-9]{3}$");	
+	
 	private String countryFieldName = null;
     private Object countryFieldValue = null;
     
@@ -34,10 +47,10 @@ public class LocalizedRegExMatchCheck extends AbstractAnnotationCheck<LocalizedR
 	public void configure(LocalizedRegExMatch countryMatch) {
 
 		patterns = new HashMap<String, String>();
-		patterns.put("GB", "[A-Z]{1,2}[0-9R][0-9A-Z]?\\s?[0-9][ABD-HJLNP-UW-Z]{2}");
-		patterns.put("US", "^\\d{5}(-\\d{4})?$");
-		patterns.put("CA", "^[ABCEGHJKLMNPRSTVXY]{1}\\d{1}[A-Z]{1} *\\d{1}[A-Z]{1}\\d{1}$");
-		patterns.put("ES", "^([1-9]{2}|[0-9][1-9]|[1-9][0-9])[0-9]{3}$");
+		patterns.put("GB", ukPostcodeRegex);
+		patterns.put("US", usPostcodeRegex);
+		patterns.put("CA", caPostcodeRegex);
+		patterns.put("ES", esPostcodeRegex);
 
         countryFieldName = countryMatch.value();
         setMessage(countryMatch.message());
@@ -57,7 +70,7 @@ public class LocalizedRegExMatchCheck extends AbstractAnnotationCheck<LocalizedR
             	localizedFieldName = context.toString();
             
             if (value!=null) 
-            	localizedFieldValue = value.toString();
+            	localizedFieldValue = value.toString().toUpperCase();
             
         } catch (NoSuchFieldException ex) {
             // this should not happen
