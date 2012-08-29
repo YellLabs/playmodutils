@@ -1,4 +1,4 @@
-self: yell -> playmodutils 0.1.3
+self: yell -> playmodutils 0.1.4
 
 require:
     - play
