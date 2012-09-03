@@ -1,19 +1,15 @@
 from play.utils import *
 import sys, traceback
-#from poster.encode import multipart_encode
-#from poster.streaminghttp import register_openers
 import urllib
 import urllib2
 import yaml
 from subprocess import call
 
-# Here you can create play commands that are specific to the module, and extend existing commands
-
 MODULE = 'playmodutils'
 
 # Commands that are specific to your module
+COMMANDS = ['deploy-artifact']
 
-COMMANDS = ['playmodutils:hello', 'deploy-artifact']
 
 def execute(**kargs):
     command = kargs.get("command")
@@ -30,9 +26,6 @@ def execute(**kargs):
     print "~ env:%s" %env
     print
         
-    if command == "playmodutils:hello":
-        print "~ Hello"
-
     if command == "deploy-artifact":
         
         print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
@@ -107,77 +100,63 @@ def execute(**kargs):
         if not os.path.exists(artifact_file):
             print '~ '
             print '~ Error: artifact zip file dist/%s-%s.zip not found.' % (app_name, module_version)
-            print '~ Try "play build-module" command first'
+            print '~ Try "play build-module" command first. add --require=1.2.3 to avoid waiting for user input'
             print '~ '
             sys.exit(-5)
 
-
+        # ====================== ZIP FILE ======================
         if "-a" in args:
-            #We won't ask the user if he wants to commit
             resp = "Y"
         else:
             resp = raw_input('~ Do you want to post %s to Artifactory? (Y/N) ' % artifact_file)
-            
-        if resp == 'Y':
-            try:
-                zip_url = '%s/play-release-local/yell/%s/%s/%s-%s.zip' % (artifactory_url, app_name, module_version, app_name, module_version)
-                deps_url = '%s/play-release-local/yell/%s/%s/%s-%s-dependencies.yml' % (artifactory_url, app_name, module_version, app_name, module_version)
-            
-                # ================================================
-                # ================================================
-                # ================================================
-                
-                print '~ '
-                print '~ Sending %s to %s' % (artifact_file, zip_url)
-                
-                command = "curl -XPUT --user %s:%s %s --data-binary @%s" % (artifactory_user, artifactory_password, zip_url, artifact_file) # --verbose
-                print '~ executing command:'
-                print '~ %s' % command
-                print '~ uploading.....'
-                result = call(command, shell=True)
-                
-                if result == 0:
-                    print '~'
-                    print '~ command successful'
-                    print '~'
-                else :
-                    print '~'
-                    print '~ upload using curl has failed, stop deploying.'
-                    print '~'
-                    sys.exit(-6)
-
-                # ================================================
-                # ================================================
-                # ================================================
-                print '~ '
-                print '~ Sending %s to %s' % (deps_file, deps_url)
-                
-                command = "curl -XPUT --user %s:%s %s --data-binary @%s" % (artifactory_user, artifactory_password, deps_url, deps_file) # --verbose
-                print '~ executing command:'
-                print '~ %s' % command
-                print '~ uploading.....'
-                result = call(command, shell=True)
-                
-                if result == 0:
-                    print '~'
-                    print '~ command successful'
-                    print '~'
-                else :
-                    print '~'
-                    print '~ upload using curl has failed, stop deploying.'
-                    print '~'
-                    sys.exit(-6)
-                    
-                                        
-            except:
-                traceback.print_exc()
-                pass
-            
+        if resp == 'Y' or resp == 'y':
+            zip_url = '%s/play-release-local/yell/%s/%s/%s-%s.zip' % (artifactory_url, app_name, module_version, app_name, module_version)
+            upload_file_to_artifactory(artifact_file, zip_url, artifactory_user, artifactory_password)
         else:
             print '~ '
             print '~ Skipping %s' % artifact_file
-            
 
+        # ====================== DEPENDENCIES FILE ======================               
+        if "-a" in args:
+            resp = "Y"
+        else:
+            resp = raw_input('~ Do you want to post %s to Artifactory? (Y/N) ' % deps_file)
+        if resp == 'Y' or resp == 'y':
+            deps_url = '%s/play-release-local/yell/%s/%s/%s-%s-dependencies.yml' % (artifactory_url, app_name, module_version, app_name, module_version)
+            upload_file_to_artifactory(deps_file, deps_url, artifactory_user, artifactory_password)   
+        else:
+            print '~ '
+            print '~ Skipping %s' % deps_file
+ 
+ 
+def upload_file_to_artifactory(file, file_url, artifactory_user, artifactory_password):
+    try:
+        print '~ '
+        print '~ '
+        print '~ Sending %s to %s' % (file, file_url)
+        
+        command = "curl -XPUT --user %s:%s %s --data-binary @%s" % (artifactory_user, artifactory_password, file_url, file) # --verbose
+        
+        print '~ executing command:'
+        print '~ %s' % command
+        print '~ '
+        print '~ uploading.....'
+        result = call(command, shell=True)
+        
+        if result == 0:
+            print '~'
+            print '~ command successful'
+            print '~'
+        else :
+            print '~'
+            print '~ upload using curl has failed, stop deploying.'
+            print '~'
+            sys.exit(-10)
+    except:
+        traceback.print_exc()
+        sys.exit(-11)
+ 
+        
 # This will be executed before any command (new, run...)
 def before(**kargs):
     command = kargs.get("command")
@@ -187,6 +166,7 @@ def before(**kargs):
 
 
 # This will be executed after any command (new, run...)
+
 
 def after(**kargs):
     command = kargs.get("command")
