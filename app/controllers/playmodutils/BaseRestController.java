@@ -1,17 +1,19 @@
 package controllers.playmodutils;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
-
 import models.playmodutils.ErrorMessage;
 import models.playmodutils.ErrorReport;
+import play.Logger;
 import play.Play;
 import play.mvc.After;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Http.Header;
+import play.mvc.results.NotFound;
+import play.mvc.results.Error;
 import utils.playmodutils.ErrorHelper;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 /* This is a generic Rest Controller to make interaction with the other API's a straightforwards process */
 
@@ -94,4 +96,89 @@ public class BaseRestController extends Controller {
 		
 		response.contentType = suggestedContentTypeHeader+ContentTypeSuggester.contentTypeSuffix;
 	}	
+	
+	/**
+     * Send a 404 Not Found response
+     * @param what The Not Found resource name
+     */
+    protected static void notFound(String what) {
+    	// override request format to json to return json formatted 404 page
+    	request.format="json";
+        throw new NotFound(what);
+    }
+    
+    /**
+     * Send a 404 Not Found response if object is null
+     * @param o The object to check
+     */
+    protected static void notFoundIfNull(Object o) {
+    	// override request format to json to return json formatted 404 page
+    	request.format="json";
+    	if (o == null) {
+            notFound();
+        }
+    }
+
+    /**
+     * Send a 404 Not Found response if object is null
+     * @param o The object to check
+     * @param what The Not Found resource name
+     */
+    protected static void notFoundIfNull(Object o, String what) {
+    	// override request format to json to return json formatted 404 page
+    	request.format="json";
+    	if (o == null) {
+            notFound(what);
+        }
+    }
+
+    /**
+     * Send a 404 Not Found reponse
+     */
+    protected static void notFound() {
+    	// override request format to json to return json formatted 404 page
+    	request.format="json";
+    	throw new NotFound("");
+    }
+    /**
+     * Send a 5xx Error response
+     * @param status The exact status code
+     * @param reason The reason
+     */
+    protected static void error(int status, String reason) {
+    	// override request format to json to return json formatted 500 page
+    	request.format="json";
+    	throw new Error(status, reason);
+    }
+
+    /**
+     * Send a 500 Error response
+     * @param reason The reason
+     */
+    protected static void error(String reason) {
+    	// override request format to json to return json formatted 500 page
+    	request.format="json";
+    	throw new Error(reason);
+    }
+
+    /**
+     * Send a 500 Error response
+     * @param reason The reason
+     */
+    protected static void error(Exception reason) {
+    	// override request format to json to return json formatted 500 page
+    	request.format="json";
+    	Logger.error(reason, "error()");
+        throw new Error(reason.toString());
+    }
+
+    /**
+     * Send a 500 Error response
+     */
+    protected static void error() {
+    	// override request format to json to return json formatted 500 page
+    	request.format="json";
+    	throw new Error("Internal Error");
+    }
+	
 }
