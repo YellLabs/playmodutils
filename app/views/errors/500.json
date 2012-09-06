@@ -1,0 +1,6 @@
+{
+   "errors":
+      [
+        {"code":"500","description":"${exception}"}
+      ]
+}

@@ -8,8 +8,8 @@
 GET     /?                      Module.index
 
 # test routes
-GET       /normalResponse                         TestRESTController.normalResponse
-GET       /notFoundResponse                       TestRESTController.notFoundResponse
-GET       /notFoundResponseWithString             TestRESTController.notFoundResponseWithString
-GET       /errorResponse                          TestRESTController.errorResponse
-GET       /errorResponseWithException             TestRESTController.errorResponseWithException
+GET       /normalResponse                         playmodutils.TestRESTController.normalResponse
+GET       /notFoundResponse                       playmodutils.TestRESTController.notFoundResponse
+GET       /notFoundResponseWithString             playmodutils.TestRESTController.notFoundResponseWithString
+GET       /errorResponse                          playmodutils.TestRESTController.errorResponse
+GET       /errorResponseWithException             playmodutils.TestRESTController.errorResponseWithException

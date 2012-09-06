@@ -1,0 +1,6 @@
+{
+   "errors":
+      [
+        {"code":"404","description":"${result.message}"}
+      ]
+}
