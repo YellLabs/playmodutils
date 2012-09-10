@@ -30,8 +30,9 @@ nbproject
 # java dumps
 hs_*
 
-# ignore application.conf as modules should NOT have one, create one locally if you need to test
+# files generated from templates
 conf/application.conf
+conf/dependencies.conf
 
 *.pyc
 /local_settings.py

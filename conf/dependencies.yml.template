@@ -1,0 +1,4 @@
+self: yell -> %(project_name)s %(project_version)s
+
+require:
+    - play
