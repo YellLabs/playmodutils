@@ -5,7 +5,7 @@ import models.playmodutils.StatusItem;
 public class StatusUtils {
 
     public static StatusItem getDeps(){
-        StatuItem deps = new StatuItem();
+        StatusItem deps = new StatusItem();
         deps.detected = true;
         deps.status = "OK";
 
