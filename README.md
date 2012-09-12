@@ -27,13 +27,75 @@ Returns the version type of a project
 
 -Date & Time Validation
 
+Changelog
+=========
+
+What's new in verision 0.1.6
+----------------------------
+
+The BaseRestController now has the notFound() and error() methods to alway return 
+json formatted 404 and 500 error responses.  Based on a redmine ticket.
+
+* WARNING!!!! If you update to this version of the component you also need to make a minor change 
+    to your applications conf/routes file. Add the following two lines:
+
+        # load routes from playmodutils for functional tests
+        GET     /test     module:playmodutils
+
+These are required so the functional tests for the module run successfully.
+
+What's new in verision 0.1.5
+----------------------------
+
+Added a custom command in commands.py file to push dependencies.yml and modules zip file to artifactory.
+
+### Pre-Requisites
+
+1. conf/dependencies.yml file must be present in the module/app folder 
+and its first line should contain something like
+
+        self: yell -> placesapi 0.1.8-RC9
+
+    or alternatively you should specify the version in application.version property in application.conf
+
+2. configs required in the application.conf.template/fabfile
+example
+
+        artifactory_url=http://uskopciaft01.yellglobal.net:8080/artifactory
+        artifactory_user=play
+        artifactory_password={DESede}MrCcGAFjDwyyxo6R83ZkMw==
+
+* Note: if 1. or 2. are missing, the script will complain about this and stop
+
+
+### Instructions about how to push new modules to artifactory
+
+1. build module first 
+
+        play build-module --require=1.2.3
+
+2. render templates for the desired env
+
+        play ci_vm render_settings_template
+
+3. sync dependencies
+
+        play deps --sync
+
+4. push to artifactory
+
+        play deploy-artifact
+        Confirm with "Y" when asked or use the "-a" option
+
+
 Installation
-------------
+============
 
 The common module can now be installed by just updating your dependencies.yml
     
 dependencies.yml
 ----------------
+
 Amend your dependencies.yml to reference the module.
 
     # Application dependencies
@@ -67,6 +129,11 @@ The module requires a number of settings in the application.conf file to work co
     # Define locales used by your application.
     # You can then place localized messages in conf/messages.{locale} files
     application.langs=en,es
+    
+    # push to artifactory
+    artifactory_url=http://uskopciaft01.yellglobal.net:8080/artifactory
+    artifactory_user=play
+    artifactory_password={DESede}MrCcGAFjDwyyxo6R83ZkMw==
 
 Development Tips
 ================
@@ -124,35 +191,6 @@ type
     1.2.3
 
 There will now be a zip file in the projects dist directory
-
-Deploying the Module
---------------------
-
-Now the zip file and supporting dependencies.yml file need to be transmitted to the packages server using scp.
-
-    # send module zip file
-    scp dist/playmodutils-0.1.0.zip eziya@puppet.dev.yelllabs.int:/srv/www/nginx/packages.yellgroup.com/html/play/yell
-
-
-    # send dependencies.yml
-    scp conf/dependencies.yml eziya@puppet.dev.yelllabs.int:/srv/www/nginx/packages.yellgroup.com/html/play/yell/playmodutils-0.1.0.dependencies.yml
-
-If this doesn't work then try to scp to your home directory on the packages server, then ssh there and move the files:
-   copy local files to puppet server:
-   e.g
-   scp placesapiadapter-0.1.7.zip ilalli@puppet.dev.yelllabs.int:/home/ilalli
-
-   ssh puppet.dev.yelllabs.int
-
-   Then move the files to the web directory
-
-   mv placesapiadapter-0.1.7.zip /srv/www/nginx/packages.yellgroup.com/html/play/yell/
-
-
-Checking the Deployment
------------------------
-If you browse to http://packages.yellgroup.com/play/yell/ your zip file and dependencies file should be visible.
-
 
 Troubleshooting
 ===============
