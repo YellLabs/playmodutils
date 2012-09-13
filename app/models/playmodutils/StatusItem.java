@@ -1,12 +1,18 @@
 package models.playmodutils;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 public class StatusItem{
+    public String type;
+
     public String name;
-    public boolean detected;
-    public String status;
+	public String value;
+
+	public String status;
+    
+	public boolean detected;
+
     public List<StatusItem> relatedItems;
 
     public StatusItem(){
