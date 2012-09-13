@@ -30,6 +30,10 @@ Returns the version type of a project
 Changelog
 =========
 
+What's new in verision 0.1.7
+----------------------------
+Added StatusItem model which will be used by any components or apps to list status information.
+
 What's new in verision 0.1.6
 ----------------------------
 
