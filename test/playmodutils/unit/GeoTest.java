@@ -1,17 +1,10 @@
 package playmodutils.unit;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 import models.playmodutils.GeoPoint;
 
-import org.junit.Before;
 import org.junit.Test;
 
-import play.data.validation.Validation;
-import play.test.Fixtures;
 import play.test.UnitTest;
 import utils.playmodutils.GeoHelper;
 
@@ -23,12 +16,6 @@ import utils.playmodutils.GeoHelper;
 
 public class GeoTest extends UnitTest {
 
-	@Before
-	public void setUp() {
-	    //Fixtures.deleteDatabase();
-	    //Fixtures.loadModels("data.yml");
-	}
-    
     @Test
     public void testCalcDistanceBetweenPointsKM() {
 
@@ -55,6 +42,14 @@ public class GeoTest extends UnitTest {
     	assertEquals(32.161, distance,0.05);
     	
     }
+
+	@Test
+	public void testThatThereIsNoDistanceBetweenAPointAndItself() {
+        double latitude = 50.8524;
+        double longitude = -1.1813;
+		double distance = GeoHelper.calcDistanceBetweenPoints(latitude, longitude, latitude, longitude, 'm');
+		assertEquals(0.0, distance,0.0000001);
+	}
     
     @Test
     public void testCalcBoundingBox() {
@@ -83,7 +78,6 @@ public class GeoTest extends UnitTest {
     	distance = GeoHelper.calcDistanceBetweenPoints(points.get(0).getLat(), points.get(0).getLon(), points.get(1).getLat(), points.get(1).getLon(), 'K');
     	cornerToCornerDist = Math.sqrt((searchDistanceKm*searchDistanceKm)+(searchDistanceKm*searchDistanceKm)); // hypotenuse = sqrt of (side a squared + side b squared)
     	assertEquals(cornerToCornerDist,distance,0.08);
-
-    	
     }
+
    }
