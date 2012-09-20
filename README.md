@@ -29,12 +29,16 @@ Returns the version type of a project
 
 Changelog
 =========
+What's new in version 0.1.8
+----------------------------
+* Bug solved: GeoHelper returned NaN instead of 0.0 sometimes when asked for the distance between a point and itself.
+* Bounding box size can be less than one kilometer now
 
-What's new in verision 0.1.7
+What's new in version 0.1.7
 ----------------------------
 Added StatusItem model which will be used by any components or apps to list status information.
 
-What's new in verision 0.1.6
+What's new in version 0.1.6
 ----------------------------
 
 The BaseRestController now has the notFound() and error() methods to alway return 
@@ -48,7 +52,7 @@ json formatted 404 and 500 error responses.  Based on a redmine ticket.
 
 These are required so the functional tests for the module run successfully.
 
-What's new in verision 0.1.5
+What's new in version 0.1.5
 ----------------------------
 
 Added a custom command in commands.py file to push dependencies.yml and modules zip file to artifactory.

@@ -7,8 +7,8 @@ import static java.lang.Math.sin;
 import static java.lang.Math.sqrt;
 import static java.lang.Math.toDegrees;
 import static java.lang.Math.toRadians;
+import static java.util.Arrays.asList;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import models.playmodutils.GeoPoint;
@@ -22,14 +22,14 @@ public class GeoHelper {
 		if (lat1 == lat2 && lon1 == lon2) {
 			dist = 1; // sin^2(x) + cos^2(x) = 1
 		} else {
-			dist = sin(toRadians(lat1)) * sin(toRadians(lat2)) + cos(toRadians(lat1)) * cos(toRadians(lat2)) * cos(toRadians(theta));
+			dist = sin(toRadians(lat1)) * sin(toRadians(lat2)) + cos(toRadians(lat1)) * cos(toRadians(lat2))
+					* cos(toRadians(theta));
 		}
 		dist = toDegrees(acos(dist));
 		dist = dist * 60 * 1.1515;
 		if (unit == 'K') {
 			dist = dist * 1.609344;
-		}
-		if (unit == 'm') {
+		}else if (unit == 'm') {
 			dist = dist * 1609.344;
 		} else if (unit == 'N') {
 			dist = dist * 0.8684;
@@ -48,11 +48,18 @@ public class GeoHelper {
 		return sqrt((An * An + Bn * Bn) / (Ad * Ad + Bd * Bd));
 	}
 
-	// will return two points
+	/**
+	 * @deprecated Use {@link #calcBoundingBox(double, double, double)} instead
+	 */
+	@Deprecated
 	public static List<GeoPoint> calcBoundingBox(double lat, double lon, int searchDistanceKm) {
+		return calcBoundingBox(lat, lon, new Float(searchDistanceKm));
+	}
+
+	// will return two points
+	public static List<GeoPoint> calcBoundingBox(double lat, double lon, double searchDistanceKm) {
 
 		// calc bounding box co-ords
-
 		double latInRadians = toRadians(lat);
 		double lonInRadians = toRadians(lon);
 		double halfSide = 1000 * searchDistanceKm / 2;
@@ -62,31 +69,20 @@ public class GeoHelper {
 		// Radius of the parallel at given latitude
 		double pradius = radius * cos(latInRadians);
 
-		double latMinInRadians = latInRadians - halfSide / radius;
-		double latMaxInRadians = latInRadians + halfSide / radius;
-		double lonMinInRadians = lonInRadians - halfSide / pradius;
-		double lonMaxInRadians = lonInRadians + halfSide / pradius;
-		// convert back to degrees for query
-		double boxFromLat = toDegrees(latMinInRadians);
-		double boxToLat = toDegrees(latMaxInRadians);
-		double boxFromLon = toDegrees(lonMinInRadians);
-		double boxToLon = toDegrees(lonMaxInRadians);
+		double latFromInRadians = latInRadians - halfSide / radius;
+		double lonFromInRadians = lonInRadians - halfSide / pradius;
+		double latToInRadians = latInRadians + halfSide / radius;
+		double lonToInRadians = lonInRadians + halfSide / pradius;
 
-		GeoPoint fromPoint = new GeoPoint(boxFromLat, boxFromLon);
-		GeoPoint toPoint = new GeoPoint(boxToLat, boxToLon);
+		GeoPoint fromPoint = new GeoPoint(toDegrees(latFromInRadians), toDegrees(lonFromInRadians));
+		GeoPoint toPoint = new GeoPoint(toDegrees(latToInRadians), toDegrees(lonToInRadians));
 
-		List<GeoPoint> points = new ArrayList<GeoPoint>();
-		points.add(fromPoint);
-		points.add(toPoint);
-
-		return points;
+		return asList(fromPoint,toPoint);
 	}
 
 	public static double convertKmToRadians(Integer searchDistanceKm) {
 		// convert distance in km to a value in radians
-
 		return searchDistanceKm / (2.0 * PI * 6371.0) * 360.0 * (PI / 180.0);
-
 	}
 
 }
