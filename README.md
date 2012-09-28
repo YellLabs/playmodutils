@@ -29,6 +29,10 @@ Returns the version type of a project
 
 Changelog
 =========
+What's new in version 0.1.9
+----------------------------
+* Display pound sign instead of its unicode representation 
+
 What's new in version 0.1.8
 ----------------------------
 * Bug solved: GeoHelper returned NaN instead of 0.0 sometimes when asked for the distance between a point and itself.
