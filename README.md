@@ -78,13 +78,13 @@ example
 
 ### Instructions about how to push new modules to artifactory
 
-1. build module first 
+1. render templates for the desired env
+
+        fab ci_vm render_settings_template
+
+2. build module first 
 
         play build-module --require=1.2.3
-
-2. render templates for the desired env
-
-        play ci_vm render_settings_template
 
 3. sync dependencies
 
