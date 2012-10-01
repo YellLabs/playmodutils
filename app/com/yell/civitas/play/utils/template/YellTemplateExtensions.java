@@ -3,6 +3,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
+import org.codehaus.jettison.json.JSONObject;
+
 import play.Play;
 import play.templates.JavaExtensions;
 
@@ -16,6 +18,10 @@ public class YellTemplateExtensions extends JavaExtensions {
     	// and unicode code for the pound-sign with a pound sign
     	nonEscaped = nonEscaped.replace("\\u00A3", "£");
         return nonEscaped;
+    }
+    
+    public static String quoteJSON(String str) {
+    	return JSONObject.quote(str);
     }
     
     public static String dateFormat(Date date) {
