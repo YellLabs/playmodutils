@@ -29,6 +29,10 @@ Returns the version type of a project
 
 Changelog
 =========
+What's new in version 0.1.10
+----------------------------
+* (RM#4307) Restored escaping of single quotes (regression intrduced in 0.1.9)
+
 What's new in version 0.1.9
 ----------------------------
 * Display pound sign instead of its unicode representation 
