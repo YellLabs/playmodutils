@@ -14,7 +14,7 @@ public class YellTemplateExtensions extends JavaExtensions {
     	// now replace and escaped single quotes with a non-escaped single quote
     	String nonEscaped = escapedString.replace("\\'", "'");
     	// and unicode code for the pound-sign with a pound sign
-    	nonEscaped = escapedString.replace("\\u00A3", "£");
+    	nonEscaped = nonEscaped.replace("\\u00A3", "£");
         return nonEscaped;
     }
     
