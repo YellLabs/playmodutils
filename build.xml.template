@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="%(project_name)s" default="build" basedir=".">
+
+    <target name="check" unless="play.path">
+        <fail message="Please specify Play framework path using -Dplay.path=/path/to/framework/home" />
+    </target>
+
+    <path id="project.classpath">
+        <pathelement path="${play.path}/framework/classes"/>
+        <fileset dir="${play.path}/framework/lib">
+            <include name="*.jar"/>
+        </fileset>
+        <fileset dir="${play.path}/framework">
+            <include name="*.jar"/>
+        </fileset>
+        <fileset dir="lib">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+
+    <target name="build" depends="compile">
+        <mkdir dir="lib" />
+        <copy todir="tmp/classes">
+            <fileset dir="src">
+                <include name="**/*.properties"/>
+                <include name="**/*.xml"/>
+                <include name="**/play.plugins"/>
+                <include name="**/play.static"/>
+            </fileset>
+        </copy>
+        <jar destfile="lib/play-playmodutils.jar" basedir="tmp/classes">
+            <manifest>
+                <section name="Play-module">
+                    <attribute name="Specification-Title" value="playmodutils"/>
+                </section>
+            </manifest>
+        </jar>
+        <delete dir="tmp" />
+    </target>
+
+    <target name="compile" depends="check">
+        <mkdir dir="tmp/classes" />
+        <javac srcdir="src" destdir="tmp/classes" target="1.5" debug="true">
+            <classpath refid="project.classpath" />
+        </javac>
+    </target>
+
+        <property environment="env" />
+        
+        <taskdef uri="antlib:org.sonar.ant" resource="org/sonar/ant/antlib.xml" >
+                <classpath path="/opt/sonar/lib/sonar-ant-task-2.0.jar"/>
+        </taskdef>
+        
+        <!-- The sonar task code analysis -->
+        <target name="sonar">
+        
+                <!-- =================================== -->
+                <!-- Mandatory sonar analysis parameters -->
+                <!-- =================================== -->
+                
+                <property name="sonar.host.url" value="http://%(sonar_host)s:9000/"/>
+                <property name="sonar.jdbc.url" value="jdbc:mysql://%(sonar_host)s:3306/sonar?useUnicode=true&amp;characterEncoding=utf8&amp;rewriteBatchedStatements=true"/>
+                <property name="sonar.jdbc.driverClassName" value="com.mysql.jdbc.Driver"/>
+                <property name="sonar.jdbc.username" value="%(sonar_jdbc_username)s" />
+                <property name="sonar.jdbc.password" value="%(sonar_jdbc_password)s" />
+                
+                <property name="sonar.projectName" value="%(project_name)s" />
+                
+                <!-- Comma-separated paths to directories containing sources -->
+                <property name="sonar.sources" value="app"/>
+                
+                        
+                <!-- ================================= -->
+                <!-- Optional configuration parameters -->
+                <!-- ================================= -->
+                
+                <!-- Comma-separated paths to directories containing tests -->
+                <property name="sonar.tests" value="test" />
+                
+                <!-- Comma-separated paths to directories containing binaries (in case of Java: directories with class files). -->
+                <!--<property name="sonar.binaries" value="" />-->
+                
+                <!-- Comma-separated paths to files with third-party libraries (in case of Java: JAR files) -->
+                <!--<property name="sonar.libraries" value="" />-->
+                
+                <!--Manage SCM branches. Two branches of the same project are considered as different projects in Sonar. -->
+                <!--<property name="sonar.branch" value ="master"/>-->
+                
+                <!-- Through the Sonar web interface, you can define as many quality profiles as you want 
+                     and you can easily associate one of this quality profile to a given project -->
+                <!--<property name="sonar.profile" value="play"/> -->
+                
+                
+                <!-- ===================================== -->
+                <!-- Unit and Integration Tests parameters -->
+                <!-- ===================================== -->
+                
+                <property name="sonar.dynamicAnalysis" value="reuseReports" />
+                <!--<property name="sonar.surefire.reportsPath" value="test-result" />-->
+                <property name="sonar.cobertura.reportPath" value="test-result/code-coverage/coverage.xml" />
+                
+                <!-- This will create a project in sonar -->
+                <sonar:sonar key="com.yell.civitas:%(project_name)s" version="%(project_version)s" xmlns:sonar="antlib:org.sonar.ant"/>
+                
+        </target>
+
+</project>
