@@ -47,6 +47,9 @@ public class SourceVersionHelper {
 		SourceVersion sourceVersion = new SourceVersion();
 
 		String jsonString = fetchDataFromRelativeFile("/ci_props.json");
+		if (jsonString==null)
+			return null;
+		
 		sourceVersion = parseCIProps(jsonString);
 
 		return sourceVersion;
@@ -56,6 +59,8 @@ public class SourceVersionHelper {
 		SourceVersion sourceVersion = new SourceVersion();
 
 		String jsonString = fetchDataFromRelativeFile("/version");
+		if (jsonString==null)
+			return null;
 		sourceVersion = parseVersionProps(jsonString);
 
 		return sourceVersion;
