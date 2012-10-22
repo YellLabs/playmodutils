@@ -1,0 +1,111 @@
+package playmodutils.unit;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
+
+import jobs.eventsapi.DeleteOrphanEventPlacesJob;
+import jobs.eventsapi.DeleteOrphanEventsJob;
+import jobs.eventsapi.DeleteExpiredEventOccurrencesJob;
+import models.Event;
+import models.EventOccurrence;
+import models.EventPlace;
+import models.playmodutils.SourceVersion;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import play.test.UnitTest;
+import testutils.MongoDBTestHelper;
+import utils.playmodutils.SourceVersionHelper;
+
+/* these test are to check the status page functionality is working correctly */
+
+public class BuildPropsTests extends UnitTest {
+
+	@Before
+	public void setUp() {
+		
+
+	}
+
+
+    @Test
+    public void retrieveSourceVersionFromCIPropsFile() {
+    	// Test that source version props are recevied from the ci_props.json file
+    	
+    	String ciPropsJson = "{\"status\": \"ok\", \"name\": \"eventsapi\", \"sourceControlSystem\": \"git\", \"jobUrl\": \"http://somewhere\", \"jobName\": \"1_EventsApi_BAU\", \"buildNumber\": \"123\", \"version\": \"1.0.2\", \"sourceControlBranch\": \"master\", \"sourceControlRevision\": \"531dcfb0ec8e66e6503538a93a3964e4ed28a1f1\", \"jenkinsUrl\": \"http://uskopcibld01.yellglobal.net:8080/\"}";
+
+    	SourceVersion sourceVersion = SourceVersionHelper.parseCIProps(ciPropsJson);
+    	
+    	assertNotNull(sourceVersion);
+    	assertNotNull(sourceVersion.name);
+    	assertEquals("eventsapi",sourceVersion.name);
+    	assertNotNull(sourceVersion.status);
+    	assertEquals("ok",sourceVersion.status);
+    	assertNotNull(sourceVersion.version);
+    	assertEquals("1.0.2",sourceVersion.version);
+    	assertNotNull(sourceVersion.buildNumber);
+    	assertEquals("123",sourceVersion.buildNumber);
+    	assertNotNull(sourceVersion.jobName);
+    	assertEquals("1_EventsApi_BAU",sourceVersion.jobName);
+    	assertNotNull(sourceVersion.jenkinsUrl);
+    	assertEquals("http://uskopcibld01.yellglobal.net:8080/",sourceVersion.jenkinsUrl);
+    	assertNotNull(sourceVersion.sourceControlSystem);
+    	assertEquals("git",sourceVersion.sourceControlSystem);
+    	assertNotNull(sourceVersion.sourceControlRevision);
+    	assertEquals("531dcfb0ec8e66e6503538a93a3964e4ed28a1f1",sourceVersion.sourceControlRevision);
+    	assertNotNull(sourceVersion.sourceControlBranch);
+    	assertEquals("master",sourceVersion.sourceControlBranch);
+       	assertNotNull(sourceVersion.buildUrl);
+    	assertEquals("http://uskopcibld01.yellglobal.net:8080/job/1_EventsApi_BAU/123/",sourceVersion.buildUrl);   	
+    }
+
+    @Test
+    public void retrieveSourceVersionFromCIPropsFileWithNulls() {
+    	// Test that source version props are recevied from the ci_props.json file
+    	
+    	String ciPropsJson = "{\"status\": null, \"name\": null, \"sourceControlSystem\": null, \"jobUrl\": null, \"jobName\": null, \"buildNumber\": null, \"version\": null, \"sourceControlBranch\": null, \"sourceControlRevision\": null, \"jenkinsUrl\": null}";
+
+    	SourceVersion sourceVersion = SourceVersionHelper.parseCIProps(ciPropsJson);
+    	
+    	assertNotNull(sourceVersion);
+    	assertNull(sourceVersion.name);
+    	assertNull(sourceVersion.status);
+    	assertNull(sourceVersion.version);
+    	assertNull(sourceVersion.buildNumber);
+    	assertNull(sourceVersion.jobName);
+    	assertNull(sourceVersion.jenkinsUrl);
+    	assertNull(sourceVersion.sourceControlSystem);
+    	assertNull(sourceVersion.sourceControlRevision);
+    	assertNull(sourceVersion.sourceControlBranch);
+    	
+    }
+    
+    @Test
+    public void retrieveSourceVersionFromVersionPropsFile() {
+    	// Test that source version props are recevied from the ci_props.json file
+    	
+    	String versionPropsJson = "{\"url\": \"origin git@github.com:YellLabs/eventsapi.git\", \"rev\": \"0.1.1-180-g928f3c6\", \"type\": \"git\", \"branch\": \"master\"}";
+
+    	SourceVersion sourceVersion = SourceVersionHelper.parseVersionProps(versionPropsJson);
+    	
+    	assertNotNull(sourceVersion);
+    	assertNotNull(sourceVersion.name);
+    	assertEquals("eventsapi",sourceVersion.name);
+    	assertNotNull(sourceVersion.status);
+    	assertEquals("ok",sourceVersion.status);
+    	assertNotNull(sourceVersion.version);
+    	assertNotNull(sourceVersion.sourceControlSystem);
+    	assertEquals("git",sourceVersion.sourceControlSystem);
+    	assertNotNull(sourceVersion.sourceControlRevision);
+    	assertEquals("0.1.1-180-g928f3c6",sourceVersion.sourceControlRevision);
+    	assertNotNull(sourceVersion.sourceControlBranch);
+    	assertEquals("master",sourceVersion.sourceControlBranch);
+    	assertNotNull(sourceVersion.buildUrl);
+    	assertEquals("https://github.com/YellLabs/eventsapi/commit/0.1.1-180-g928f3c6",sourceVersion.buildUrl);  
+    	
+    }
+    
+}

@@ -18,6 +18,7 @@ public class Bootstrap extends Job {
 	private static final String dependenciesPath = "/conf/dependencies.yml";
 	public void doJob() {
 		determineVersionInfo();
+		
     }
 	
 	private void determineVersionInfo() {
