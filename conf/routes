@@ -6,10 +6,10 @@
 # ~~~~
 
 GET     /?                      Module.index
-
+GET       /version                                     playmodutils.BaseRestController.getBuildInfo
 # test routes
-GET       /normalResponse                         playmodutils.TestRESTController.normalResponse
-GET       /notFoundResponse                       playmodutils.TestRESTController.notFoundResponse
-GET       /notFoundResponseWithString             playmodutils.TestRESTController.notFoundResponseWithString
-GET       /errorResponse                          playmodutils.TestRESTController.errorResponse
-GET       /errorResponseWithException             playmodutils.TestRESTController.errorResponseWithException
+GET       /test/normalResponse                         playmodutils.TestRESTController.normalResponse
+GET       /test/notFoundResponse                       playmodutils.TestRESTController.notFoundResponse
+GET       /test/notFoundResponseWithString             playmodutils.TestRESTController.notFoundResponseWithString
+GET       /test/errorResponse                          playmodutils.TestRESTController.errorResponse
+GET       /test/errorResponseWithException             playmodutils.TestRESTController.errorResponseWithException
