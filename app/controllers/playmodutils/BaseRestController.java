@@ -2,18 +2,22 @@ package controllers.playmodutils;
 
 import models.playmodutils.ErrorMessage;
 import models.playmodutils.ErrorReport;
+import models.playmodutils.SourceVersion;
 import play.Logger;
 import play.Play;
 import play.mvc.After;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Http.Header;
-import play.mvc.results.NotFound;
 import play.mvc.results.Error;
+import play.mvc.results.NotFound;
 import utils.playmodutils.ErrorHelper;
+import utils.playmodutils.SourceVersionHelper;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 /* This is a generic Rest Controller to make interaction with the other API's a straightforwards process */
 
@@ -23,6 +27,8 @@ public class BaseRestController extends Controller {
 	public static String requestedContentType;
 	public static String requestedAcceptHeader;
 	public static String resourceVersion;
+	
+	private static SourceVersion sourceVersion;
 
 	protected static void validatePagingParams(Integer startPage, Integer count) {
 		validateLimits(startPage, count);
@@ -80,8 +86,48 @@ public class BaseRestController extends Controller {
 	 * @return the value currently assigned to application.version, which is bootstrapped from the version and dependencies files. 
 	 * 		This can be provided to a /info or similar GET REST method to expose both the module versions and the deployed tag of the codebase 
 	 */
-	protected static String getVersionInfo() {
+	/*
+	 * THIS METHOD HAS BEEN REMOVED - is has been superceded by getBuildInfo which renders a json response
+	 * 
+	 * protected static String getVersionInfo() {
 		return (String) Play.configuration.get("application.version");
+	}*/
+	/*
+	 * This method returns details of source the application was built from 
+	 */
+	protected static SourceVersion getSourceVersionInfo() {
+		
+		// if version info is null - populate it first time
+		if(sourceVersion==null)
+		{
+			// try to get details from CI build first
+			sourceVersion = SourceVersionHelper.getSourceVersionFromCIDeploy();
+			
+			if(sourceVersion==null)
+			{
+				// try from local build
+				sourceVersion = SourceVersionHelper.getSourceVersionFromLocalDeploy();
+			}
+			
+		}
+		
+		return sourceVersion;
+	}
+	
+	public static void getBuildInfo() 
+	{
+		SourceVersion version = getSourceVersionInfo();
+		if(version!=null)
+		{
+			response.setHeader("content-type","application/json");
+			renderJSON(sourceVersion);
+		}
+		else
+		{
+			String jsonText = "{\"Error\": \"build info not available\"}";
+			response.setHeader("content-type","application/json");
+			renderText(jsonText);
+		}
 	}
 	
 	/*

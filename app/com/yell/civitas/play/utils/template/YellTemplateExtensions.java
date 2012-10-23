@@ -3,7 +3,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.codehaus.jettison.json.JSONObject;
+//import org.codehaus.jettison.json.JSONObject;
 
 import play.Play;
 import play.templates.JavaExtensions;
@@ -19,10 +19,10 @@ public class YellTemplateExtensions extends JavaExtensions {
     	nonEscaped = nonEscaped.replace("\\u00A3", "£");
         return nonEscaped;
     }
-    
-    public static String quoteJSON(String str) {
-    	return JSONObject.quote(str);
-    }
+// removed until we need it  
+//    public static String quoteJSON(String str) {
+//    	return JSONObject.quote(str);
+//    }
     
     public static String dateFormat(Date date) {
     	if (date==null) 
