@@ -14,14 +14,20 @@ except ImportError:
 # global environment settings
 env.lang = "play"
 env.project_name = "playmodutils"
-env.project_version= "0.1.11"
+env.project_version= "0.1.12"
 env.scm_type = "git"
 env.scm_url = "git@github.com:YellLabs/playmodutils.git"
 env.rsync_exclude = ["modules/", "lib/", "tmp/", "logs/"]
 env.sudo_user = "labs.deploy"
 
+# sonar
+env.sonar_host="localhost"
+env.sonar_jdbc_username="sonar"
+env.sonar_jdbc_password="t0ps3cr3t"
+
 env.custom_config_files = [
-    { "source": "conf/dependencies.yml.template", "dest": "conf/dependencies.yml"}
+    { "source": "conf/dependencies.yml.template", "dest": "conf/dependencies.yml"},
+    { "source": "build.xml.template", "dest": "build.xml"}
 ]
 
 # variables required to render local settings
@@ -31,6 +37,9 @@ env.settings_vars = [
     "artifactory_url",
     "artifactory_user",
     "artifactory_password",
+    "sonar_host",
+    "sonar_jdbc_username",
+    "sonar_jdbc_password",
     "custom_config_files",   
 ]
 
