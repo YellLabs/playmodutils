@@ -109,11 +109,31 @@ public class BuildPropsTests extends UnitTest {
     }
     
     @Test
+    public void retrieveSourceVersionFromVersionPropsFilewithNulls() {
+    	// Test that source version props are recevied from the ci_props.json file
+    	
+    	String versionPropsJson = "{\"url\": null, \"rev\": null, \"type\": null, \"branch\": null}";
+
+    	SourceVersion sourceVersion = SourceVersionHelper.parseVersionProps(versionPropsJson);
+    	
+    	assertNotNull(sourceVersion);
+    	assertNotNull(sourceVersion.name);
+    	assertNotNull(sourceVersion.version);
+    	assertNotNull(sourceVersion.status);
+    	assertEquals("ok",sourceVersion.status);
+    	assertNull(sourceVersion.sourceControlSystem);
+    	assertNull(sourceVersion.sourceControlRevision);
+    	assertNull(sourceVersion.sourceControlBranch);
+    	assertNull(sourceVersion.buildUrl);
+    	
+    }
+    
+    @Test
     public void retrieveDependenciesFromFile() {
     	// Test dependencies.yml is being retrieved
     	
 
-    	String dependenciesYml = SourceVersionHelper.getDependenciesFromFile();
+    	String[] dependenciesYml = SourceVersionHelper.getDependenciesFromFile();
     	
     	assertNotNull(dependenciesYml);
     	
