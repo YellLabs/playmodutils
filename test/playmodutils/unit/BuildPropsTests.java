@@ -1,23 +1,13 @@
 package playmodutils.unit;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 
-import jobs.eventsapi.DeleteOrphanEventPlacesJob;
-import jobs.eventsapi.DeleteOrphanEventsJob;
-import jobs.eventsapi.DeleteExpiredEventOccurrencesJob;
-import models.Event;
-import models.EventOccurrence;
-import models.EventPlace;
 import models.playmodutils.SourceVersion;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import play.test.UnitTest;
-import testutils.MongoDBTestHelper;
 import utils.playmodutils.SourceVersionHelper;
 
 /* these test are to check the status page functionality is working correctly */
@@ -93,7 +83,7 @@ public class BuildPropsTests extends UnitTest {
     	
     	assertNotNull(sourceVersion);
     	assertNotNull(sourceVersion.name);
-    	assertEquals("eventsapi",sourceVersion.name);
+    	// assertEquals("eventsapi",sourceVersion.name); // can't check value - project specific
     	assertNotNull(sourceVersion.status);
     	assertEquals("ok",sourceVersion.status);
     	assertNotNull(sourceVersion.version);
