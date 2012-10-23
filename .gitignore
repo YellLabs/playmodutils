@@ -37,3 +37,6 @@ conf/dependencies.conf
 *.pyc
 /local_settings.py
 /version
+
+conf/dependencies.yml
+build.xml

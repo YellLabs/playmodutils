@@ -2,4 +2,4 @@ self: yell -> %(project_name)s %(project_version)s
 
 require:
     - play
-    - org.codehaus.jettison -> jettison 1.3.2
+
