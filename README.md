@@ -29,6 +29,27 @@ Returns the version type of a project
 
 Changelog
 =========
+What's new in version 0.1.12
+----------------------------
+* Removed YellTemplateExtensions.quoteJSON method. This was not being used and caused a project dependency 
+
+  JSON import org.codehaus.jettison.json.JSONObject;
+
+  org.codehaus.jettison -> jettison 1.3.2
+
+* Removed Bootstrap job to populate "application.version" property
+
+* Removed getVersionInfo() method from BaseRestController
+
+* Added getBuildInfo() method to BaseRestContoller
+  This replaces the old getVersionInfo() method, but instead of returning a string it renders a JSON response.
+  
+  getBuildInfo retrieves information from "ci_props.json" if the code was deployed from a jenkins build or "version" if deployed from a local fab deploy_play command.
+
+  Projects using this module need to define a property of "application.version" in application.conf
+  
+
+
 What's new in version 0.1.10
 ----------------------------
 * (RM#4307) Restored escaping of single quotes (regression intrduced in 0.1.9)
