@@ -29,6 +29,10 @@ Returns the version type of a project
 
 Changelog
 =========
+What's new in version 0.1.13
+----------------------------
+* Tidied up routes file to be more consistent. 
+
 What's new in version 0.1.12
 ----------------------------
 * Removed YellTemplateExtensions.quoteJSON method. This was not being used and caused a project dependency 
