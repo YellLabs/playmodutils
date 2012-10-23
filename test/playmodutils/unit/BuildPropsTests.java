@@ -108,4 +108,14 @@ public class BuildPropsTests extends UnitTest {
     	
     }
     
+    @Test
+    public void retrieveDependenciesFromFile() {
+    	// Test dependencies.yml is being retrieved
+    	
+
+    	String dependenciesYml = SourceVersionHelper.getDependenciesFromFile();
+    	
+    	assertNotNull(dependenciesYml);
+    	
+    }
 }

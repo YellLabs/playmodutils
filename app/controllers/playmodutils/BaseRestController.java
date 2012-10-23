@@ -86,9 +86,12 @@ public class BaseRestController extends Controller {
 	 * @return the value currently assigned to application.version, which is bootstrapped from the version and dependencies files. 
 	 * 		This can be provided to a /info or similar GET REST method to expose both the module versions and the deployed tag of the codebase 
 	 */
-	protected static String getVersionInfo() {
+	/*
+	 * THIS METHOD HAS BEEN REMOVED - is has been superceded by getBuildInfo which renders a json response
+	 * 
+	 * protected static String getVersionInfo() {
 		return (String) Play.configuration.get("application.version");
-	}
+	}*/
 	/*
 	 * This method returns details of source the application was built from 
 	 */

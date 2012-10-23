@@ -4,10 +4,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.yaml.snakeyaml.Yaml;
 
 import play.Logger;
 import play.Play;
@@ -19,9 +15,9 @@ import com.google.gson.JsonParser;
 
 import models.playmodutils.SourceVersion;
 
-public class SourceVersionHelper {
+public class DependenciesHelper {
 
-	public static String fetchDataFromFileAsString(String relativePath) {
+	public static String fetchDataFromRelativeFile(String relativePath) {
 		// fetch data from file
 		VirtualFile virtFile = VirtualFile.fromRelativePath(relativePath);
 		File realFile = virtFile.getRealFile();
@@ -47,51 +43,14 @@ public class SourceVersionHelper {
 		return jsonString;
 	}
 	
-	public static String[] fetchDataFromFileAsStringArray(String relativePath) {
-		// fetch data from file
-		VirtualFile virtFile = VirtualFile.fromRelativePath(relativePath);
-		File realFile = virtFile.getRealFile();
-		List<String> stringList = new ArrayList();
-
-		try {
-			String textLine;
-
-			BufferedReader br = new BufferedReader(new FileReader(
-					realFile));
-
-			while ((textLine = br.readLine()) != null) {
-				stringList.add(textLine);
-			}
-		}
-
-		catch (FileNotFoundException e) {
-			return null;
-		} catch (Exception e) {
-			return null;
-		}
-		String[] strings = stringList.toArray(new String[0]);
-		return strings;
-	}
-	
-	
-	public static String[] getDependenciesFromFile() {
-		
-		String[] ymlStringArray = fetchDataFromFileAsStringArray("/conf/dependencies.yml");
-		
-		return ymlStringArray;
-
-	}
-	
 	public static SourceVersion getSourceVersionFromCIDeploy() {
 		SourceVersion sourceVersion = new SourceVersion();
 
-		String jsonString = fetchDataFromFileAsString("/ci_props.json");
+		String jsonString = fetchDataFromRelativeFile("/ci_props.json");
 		if (jsonString==null)
 			return null;
 		
 		sourceVersion = parseCIProps(jsonString);
-		
-		sourceVersion.dependencies = getDependenciesFromFile();
 
 		return sourceVersion;
 	}
@@ -99,13 +58,11 @@ public class SourceVersionHelper {
 	public static SourceVersion getSourceVersionFromLocalDeploy() {
 		SourceVersion sourceVersion = new SourceVersion();
 
-		String jsonString = fetchDataFromFileAsString("/version");
+		String jsonString = fetchDataFromRelativeFile("/version");
 		if (jsonString==null)
 			return null;
 		sourceVersion = parseVersionProps(jsonString);
 
-		sourceVersion.dependencies = getDependenciesFromFile();
-		
 		return sourceVersion;
 
 	}
@@ -170,7 +127,7 @@ rl": null} */
 		JsonObject jobject = jsonParser.parse(versionJson).getAsJsonObject();
 
 		sourceVersion.name = (String) Play.configuration.get("application.name");
-		sourceVersion.version = (String) Play.configuration.get("application.version");
+		sourceVersion.version = (String) Play.configuration.get("application.project.version");
 
 		sourceVersion.status = "ok";
 		
@@ -212,5 +169,4 @@ rl": null} */
 	}
 	
 	
-
 }

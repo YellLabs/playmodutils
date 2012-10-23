@@ -37,6 +37,8 @@ public class SourceVersion{
 
     public String sourceControlBranch; 
     
+    public String[] dependencies;
+    
     
     
 }
