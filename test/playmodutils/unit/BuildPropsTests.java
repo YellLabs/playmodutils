@@ -61,16 +61,58 @@ public class BuildPropsTests extends UnitTest {
     	SourceVersion sourceVersion = SourceVersionHelper.parseCIProps(ciPropsJson);
     	
     	assertNotNull(sourceVersion);
-    	assertNull(sourceVersion.name);
-    	assertNull(sourceVersion.status);
-    	assertNull(sourceVersion.version);
-    	assertNull(sourceVersion.buildNumber);
-    	assertNull(sourceVersion.jobName);
-    	assertNull(sourceVersion.jenkinsUrl);
-    	assertNull(sourceVersion.sourceControlSystem);
-    	assertNull(sourceVersion.sourceControlRevision);
-    	assertNull(sourceVersion.sourceControlBranch);
+    	assertNotNull(sourceVersion.name);
+    	assertEquals("eventsapi",sourceVersion.name);
+    	assertNotNull(sourceVersion.status);
+    	assertEquals("ok",sourceVersion.status);
+    	assertNotNull(sourceVersion.version);
+    	assertEquals("1.0.2",sourceVersion.version);
+    	assertNotNull(sourceVersion.buildNumber);
+    	assertEquals("123",sourceVersion.buildNumber);
+    	assertNotNull(sourceVersion.jobName);
+    	assertEquals("1_EventsApi_BAU",sourceVersion.jobName);
+    	assertNotNull(sourceVersion.jenkinsUrl);
+    	assertEquals("http://uskopcibld01.yellglobal.net:8080/",sourceVersion.jenkinsUrl);
+    	assertNotNull(sourceVersion.sourceControlSystem);
+    	assertEquals("git",sourceVersion.sourceControlSystem);
+    	assertNotNull(sourceVersion.sourceControlRevision);
+    	assertEquals("531dcfb0ec8e66e6503538a93a3964e4ed28a1f1",sourceVersion.sourceControlRevision);
+    	assertNotNull(sourceVersion.sourceControlBranch);
+    	assertEquals("master",sourceVersion.sourceControlBranch);
+       	assertNotNull(sourceVersion.buildUrl);
+    	assertEquals("http://uskopcibld01.yellglobal.net:8080/job/1_EventsApi_BAU/123/",sourceVersion.buildUrl);   	
     	
+    }
+    
+    @Test
+    public void retrieveSourceVersionFromCIPropsFileNoProps() {
+    	// Test that source version props are recevied from the ci_props.json file
+    	
+    	String ciPropsJson = null;
+
+    	SourceVersion sourceVersion = SourceVersionHelper.parseCIProps(ciPropsJson);
+    	
+    	assertNotNull(sourceVersion);
+    	assertNotNull(sourceVersion.name);
+    	//assertEquals("eventsapi",sourceVersion.name);
+    	assertNotNull(sourceVersion.status);
+    	assertEquals("ok",sourceVersion.status);
+    	assertNotNull(sourceVersion.version);
+    	//assertEquals("1.0.2",sourceVersion.version);
+    	assertNotNull(sourceVersion.buildNumber);
+    	//assertEquals("123",sourceVersion.buildNumber);
+    	assertNotNull(sourceVersion.jobName);
+    	//assertEquals("1_EventsApi_BAU",sourceVersion.jobName);
+    	assertNotNull(sourceVersion.jenkinsUrl);
+    	//assertEquals("http://uskopcibld01.yellglobal.net:8080/",sourceVersion.jenkinsUrl);
+    	assertNotNull(sourceVersion.sourceControlSystem);
+    	//assertEquals("git",sourceVersion.sourceControlSystem);
+    	assertNotNull(sourceVersion.sourceControlRevision);
+    	//assertEquals("531dcfb0ec8e66e6503538a93a3964e4ed28a1f1",sourceVersion.sourceControlRevision);
+    	assertNotNull(sourceVersion.sourceControlBranch);
+    	//assertEquals("master",sourceVersion.sourceControlBranch);
+       	assertNotNull(sourceVersion.buildUrl);
+    	//assertEquals("http://uskopcibld01.yellglobal.net:8080/job/1_EventsApi_BAU/123/",sourceVersion.buildUrl);   	
     }
     
     @Test
