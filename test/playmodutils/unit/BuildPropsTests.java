@@ -62,7 +62,8 @@ public class BuildPropsTests extends UnitTest {
     	
     	assertNotNull(sourceVersion);
     	assertNull(sourceVersion.name);
-    	assertNull(sourceVersion.status);
+    	assertNotNull(sourceVersion.status);
+    	assertEquals("ok",sourceVersion.status);
     	assertNull(sourceVersion.version);
     	assertNull(sourceVersion.buildNumber);
     	assertNull(sourceVersion.jobName);
@@ -70,7 +71,30 @@ public class BuildPropsTests extends UnitTest {
     	assertNull(sourceVersion.sourceControlSystem);
     	assertNull(sourceVersion.sourceControlRevision);
     	assertNull(sourceVersion.sourceControlBranch);
+    	assertNull(sourceVersion.buildUrl);
     	
+    }
+    
+    @Test
+    public void retrieveSourceVersionFromCIPropsFileNoProps() {
+    	// Test that source version props are recevied from the ci_props.json file
+    	
+    	String ciPropsJson = null;
+
+    	SourceVersion sourceVersion = SourceVersionHelper.parseCIProps(ciPropsJson);
+    	
+    	assertNotNull(sourceVersion);
+    	assertNull(sourceVersion.name);
+    	assertNotNull(sourceVersion.status);
+    	assertEquals("no version props",sourceVersion.status);
+    	assertNull(sourceVersion.version);
+    	assertNull(sourceVersion.buildNumber);
+    	assertNull(sourceVersion.jobName);
+    	assertNull(sourceVersion.jenkinsUrl);
+    	assertNull(sourceVersion.sourceControlSystem);
+    	assertNull(sourceVersion.sourceControlRevision);
+    	assertNull(sourceVersion.sourceControlBranch);
+    	assertNull(sourceVersion.buildUrl);
     }
     
     @Test
@@ -86,7 +110,7 @@ public class BuildPropsTests extends UnitTest {
     	// assertEquals("eventsapi",sourceVersion.name); // can't check value - project specific
     	assertNotNull(sourceVersion.status);
     	assertEquals("ok",sourceVersion.status);
-    	assertNotNull(sourceVersion.version);
+    	assertNotNull("application.conf must contain application.version property",sourceVersion.version);
     	assertNotNull(sourceVersion.sourceControlSystem);
     	assertEquals("git",sourceVersion.sourceControlSystem);
     	assertNotNull(sourceVersion.sourceControlRevision);
@@ -99,7 +123,7 @@ public class BuildPropsTests extends UnitTest {
     }
     
     @Test
-    public void retrieveSourceVersionFromVersionPropsFilewithNulls() {
+    public void retrieveSourceVersionFromVersionPropsFileWithNulls() {
     	// Test that source version props are recevied from the ci_props.json file
     	
     	String versionPropsJson = "{\"url\": null, \"rev\": null, \"type\": null, \"branch\": null}";
@@ -111,6 +135,26 @@ public class BuildPropsTests extends UnitTest {
     	assertNotNull(sourceVersion.version);
     	assertNotNull(sourceVersion.status);
     	assertEquals("ok",sourceVersion.status);
+    	assertNull(sourceVersion.sourceControlSystem);
+    	assertNull(sourceVersion.sourceControlRevision);
+    	assertNull(sourceVersion.sourceControlBranch);
+    	assertNull(sourceVersion.buildUrl);
+    	
+    }
+    
+    @Test
+    public void retrieveSourceVersionFromVersionFileNoProps() {
+    	// Test that source version props are recevied from the ci_props.json file
+    	
+    	String versionPropsJson = null;
+    	
+    	SourceVersion sourceVersion = SourceVersionHelper.parseVersionProps(versionPropsJson);
+    	
+    	assertNotNull(sourceVersion);
+    	assertNotNull(sourceVersion.name);
+    	assertNotNull(sourceVersion.version);
+    	assertNotNull(sourceVersion.status);
+    	assertEquals("no version props",sourceVersion.status);
     	assertNull(sourceVersion.sourceControlSystem);
     	assertNull(sourceVersion.sourceControlRevision);
     	assertNull(sourceVersion.sourceControlBranch);
