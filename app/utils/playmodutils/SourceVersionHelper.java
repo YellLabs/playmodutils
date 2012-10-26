@@ -7,17 +7,12 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.yaml.snakeyaml.Yaml;
-
-import play.Logger;
+import models.playmodutils.SourceVersion;
 import play.Play;
 import play.vfs.VirtualFile;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
-import models.playmodutils.SourceVersion;
 
 public class SourceVersionHelper {
 
@@ -110,31 +105,7 @@ public class SourceVersionHelper {
 
 	}
 	
-	public static String getValueIfExists(JsonObject jsonObject, String element) {
-		if(jsonObject==null)
-		{
-			// if no object provided
-			return null;
-		}
-		
-		JsonElement jsonElement = jsonObject.get(element);
-		if(jsonElement==null)
-		{
-			// if element not found
-			return null;
-		}
-		
-		if(!jsonElement.isJsonNull())
-		{
-			// if element found
-			return jsonElement.getAsString();
-		}
-		else
-		{
-			// if element found but value is null
-			return null;
-		}
-	}
+	
 
 	public static SourceVersion parseCIProps(String ciPropsJson) {
 
@@ -151,15 +122,15 @@ rl": null} */
 		}
 		JsonObject jsonObject = jsonParser.parse(ciPropsJson).getAsJsonObject();
 
-		sourceVersion.name = getValueIfExists(jsonObject,"name");
+		sourceVersion.name = JSONHelper.getValueIfExists(jsonObject,"name");
 		sourceVersion.status = "ok";
-		sourceVersion.version = getValueIfExists(jsonObject,"version");
-		sourceVersion.buildNumber = getValueIfExists(jsonObject,"buildNumber");
-		sourceVersion.jobName = getValueIfExists(jsonObject,"jobName");
-		sourceVersion.jenkinsUrl = getValueIfExists(jsonObject,"jenkinsUrl");
-		sourceVersion.sourceControlSystem = getValueIfExists(jsonObject,"sourceControlSystem");
-		sourceVersion.sourceControlRevision = getValueIfExists(jsonObject,"sourceControlRevision");
-		sourceVersion.sourceControlBranch = getValueIfExists(jsonObject,"sourceControlBranch");
+		sourceVersion.version = JSONHelper.getValueIfExists(jsonObject,"version");
+		sourceVersion.buildNumber = JSONHelper.getValueIfExists(jsonObject,"buildNumber");
+		sourceVersion.jobName = JSONHelper.getValueIfExists(jsonObject,"jobName");
+		sourceVersion.jenkinsUrl = JSONHelper.getValueIfExists(jsonObject,"jenkinsUrl");
+		sourceVersion.sourceControlSystem = JSONHelper.getValueIfExists(jsonObject,"sourceControlSystem");
+		sourceVersion.sourceControlRevision = JSONHelper.getValueIfExists(jsonObject,"sourceControlRevision");
+		sourceVersion.sourceControlBranch = JSONHelper.getValueIfExists(jsonObject,"sourceControlBranch");
 	    
 		// construct build URL
 		/* http://uskopcibld01.yellglobal.net:8080/job/1_EventsApi_BAU/325/ */
@@ -200,15 +171,15 @@ rl": null} */
 
 		sourceVersion.jenkinsUrl = null;
 
-		sourceVersion.sourceControlSystem = getValueIfExists(jsonObject,"type");
-		sourceVersion.sourceControlRevision = getValueIfExists(jsonObject,"rev");
-		sourceVersion.sourceControlBranch = getValueIfExists(jsonObject,"branch");
+		sourceVersion.sourceControlSystem = JSONHelper.getValueIfExists(jsonObject,"type");
+		sourceVersion.sourceControlRevision = JSONHelper.getValueIfExists(jsonObject,"rev");
+		sourceVersion.sourceControlBranch = JSONHelper.getValueIfExists(jsonObject,"branch");
 
 		// construct build URL
 		/* https://github.com/YellLabs/eventsapi/commit/0.1.1-180-g928f3c6 
 		 * from 
 		 * "url": "origin git@github.com:YellLabs/eventsapi.git" & "rev": "0.1.1-180-g928f3c6" */
-		String url = getValueIfExists(jsonObject,"url");
+		String url = JSONHelper.getValueIfExists(jsonObject,"url");
 		if(url!=null && sourceVersion.sourceControlRevision != null)
 		{
 			url = url.replace("origin git@github.com:", "https://github.com/");
