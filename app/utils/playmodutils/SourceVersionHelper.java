@@ -111,13 +111,27 @@ public class SourceVersionHelper {
 	}
 	
 	public static String getValueIfExists(JsonObject jsonObject, String element) {
-		JsonElement jsonElement = jsonObject.get(element);
-		if(jsonElement!=null && !jsonElement.isJsonNull())
+		if(jsonObject==null)
 		{
+			// if no object provided
+			return null;
+		}
+		
+		JsonElement jsonElement = jsonObject.get(element);
+		if(jsonElement==null)
+		{
+			// if element not found
+			return null;
+		}
+		
+		if(!jsonElement.isJsonNull())
+		{
+			// if element found
 			return jsonElement.getAsString();
 		}
 		else
 		{
+			// if element found but value is null
 			return null;
 		}
 	}
@@ -129,10 +143,16 @@ rl": null} */
 		
 		SourceVersion sourceVersion = new SourceVersion();
 		JsonParser jsonParser = new JsonParser();
+		if(ciPropsJson == null)
+		{
+			// no props provided
+			sourceVersion.status = "no version props";
+			return sourceVersion;
+		}
 		JsonObject jsonObject = jsonParser.parse(ciPropsJson).getAsJsonObject();
 
 		sourceVersion.name = getValueIfExists(jsonObject,"name");
-		sourceVersion.status = getValueIfExists(jsonObject,"status");
+		sourceVersion.status = "ok";
 		sourceVersion.version = getValueIfExists(jsonObject,"version");
 		sourceVersion.buildNumber = getValueIfExists(jsonObject,"buildNumber");
 		sourceVersion.jobName = getValueIfExists(jsonObject,"jobName");
@@ -143,7 +163,10 @@ rl": null} */
 	    
 		// construct build URL
 		/* http://uskopcibld01.yellglobal.net:8080/job/1_EventsApi_BAU/325/ */
-		sourceVersion.buildUrl = String.format("%sjob/%s/%s/",sourceVersion.jenkinsUrl,sourceVersion.jobName,sourceVersion.buildNumber);
+		if(sourceVersion.jenkinsUrl != null && sourceVersion.jobName!=null && sourceVersion.buildNumber != null)
+		{
+			sourceVersion.buildUrl = String.format("%sjob/%s/%s/",sourceVersion.jenkinsUrl,sourceVersion.jobName,sourceVersion.buildNumber);
+		}
 		return sourceVersion;
 	}
 
@@ -154,12 +177,21 @@ rl": null} */
 	/*	{"url": "origin git@github.com:YellLabs/eventsapi.git", "rev": "0.1.1-180-g928f3c6", "type": "git", "branch": "master"}  */
 		
 		SourceVersion sourceVersion = new SourceVersion();
-		JsonParser jsonParser = new JsonParser();
-		JsonObject jsonObject = jsonParser.parse(versionJson).getAsJsonObject();
-
+		
 		sourceVersion.name = (String) Play.configuration.get("application.name");
 		sourceVersion.version = (String) Play.configuration.get("application.version");
+		
+		JsonParser jsonParser = new JsonParser();
+		if(versionJson == null)
+		{
+			// no props provided
+			sourceVersion.status = "no version props";
+			return sourceVersion;
+		}
+		
+		JsonObject jsonObject = jsonParser.parse(versionJson).getAsJsonObject();
 
+		
 		sourceVersion.status = "ok";
 		
 		sourceVersion.buildNumber = null;
@@ -177,7 +209,7 @@ rl": null} */
 		 * from 
 		 * "url": "origin git@github.com:YellLabs/eventsapi.git" & "rev": "0.1.1-180-g928f3c6" */
 		String url = getValueIfExists(jsonObject,"url");
-		if(url!=null)
+		if(url!=null && sourceVersion.sourceControlRevision != null)
 		{
 			url = url.replace("origin git@github.com:", "https://github.com/");
 			// remove .git ref
