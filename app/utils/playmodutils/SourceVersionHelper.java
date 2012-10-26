@@ -7,17 +7,12 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.yaml.snakeyaml.Yaml;
-
-import play.Logger;
+import models.playmodutils.SourceVersion;
 import play.Play;
 import play.vfs.VirtualFile;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
-import models.playmodutils.SourceVersion;
 
 public class SourceVersionHelper {
 
@@ -109,6 +104,8 @@ public class SourceVersionHelper {
 		return sourceVersion;
 
 	}
+	
+	
 
 	public static SourceVersion parseCIProps(String ciPropsJson) {
 
@@ -117,61 +114,55 @@ rl": null} */
 		
 		SourceVersion sourceVersion = new SourceVersion();
 		JsonParser jsonParser = new JsonParser();
-		JsonObject jobject = jsonParser.parse(ciPropsJson).getAsJsonObject();
+		if(ciPropsJson == null)
+		{
+			// no props provided
+			sourceVersion.status = "no version props";
+			return sourceVersion;
+		}
+		JsonObject jsonObject = jsonParser.parse(ciPropsJson).getAsJsonObject();
 
-		JsonElement jsonElement = jobject.get("name");
-		if(!jsonElement.isJsonNull())
-			sourceVersion.name = jsonElement.getAsString();
-
-		jsonElement = jobject.get("status");
-		if(!jsonElement.isJsonNull())
-			sourceVersion.status = jsonElement.getAsString();
-		
-		jsonElement = jobject.get("version");
-		if(!jsonElement.isJsonNull())
-			sourceVersion.version = jsonElement.getAsString();
-
-		jsonElement = jobject.get("buildNumber");
-		if(!jsonElement.isJsonNull())
-			sourceVersion.buildNumber = jsonElement.getAsString();
-
-		jsonElement = jobject.get("jobName");
-		if(!jsonElement.isJsonNull())
-			sourceVersion.jobName = jsonElement.getAsString();
-
-		jsonElement = jobject.get("jenkinsUrl");
-		if(!jsonElement.isJsonNull())
-			sourceVersion.jenkinsUrl = jsonElement.getAsString();
-
-		jsonElement = jobject.get("sourceControlSystem");
-		if(!jsonElement.isJsonNull())
-			sourceVersion.sourceControlSystem = jsonElement.getAsString();
-
-		jsonElement = jobject.get("sourceControlRevision");
-		if(!jsonElement.isJsonNull())
-			sourceVersion.sourceControlRevision = jsonElement.getAsString();
-
-		jsonElement = jobject.get("sourceControlBranch");
-		if(!jsonElement.isJsonNull())
-			sourceVersion.sourceControlBranch = jsonElement.getAsString();
+		sourceVersion.name = JSONHelper.getValueIfExists(jsonObject,"name");
+		sourceVersion.status = "ok";
+		sourceVersion.version = JSONHelper.getValueIfExists(jsonObject,"version");
+		sourceVersion.buildNumber = JSONHelper.getValueIfExists(jsonObject,"buildNumber");
+		sourceVersion.jobName = JSONHelper.getValueIfExists(jsonObject,"jobName");
+		sourceVersion.jenkinsUrl = JSONHelper.getValueIfExists(jsonObject,"jenkinsUrl");
+		sourceVersion.sourceControlSystem = JSONHelper.getValueIfExists(jsonObject,"sourceControlSystem");
+		sourceVersion.sourceControlRevision = JSONHelper.getValueIfExists(jsonObject,"sourceControlRevision");
+		sourceVersion.sourceControlBranch = JSONHelper.getValueIfExists(jsonObject,"sourceControlBranch");
 	    
 		// construct build URL
 		/* http://uskopcibld01.yellglobal.net:8080/job/1_EventsApi_BAU/325/ */
-		sourceVersion.buildUrl = String.format("%sjob/%s/%s/",sourceVersion.jenkinsUrl,sourceVersion.jobName,sourceVersion.buildNumber);
+		if(sourceVersion.jenkinsUrl != null && sourceVersion.jobName!=null && sourceVersion.buildNumber != null)
+		{
+			sourceVersion.buildUrl = String.format("%sjob/%s/%s/",sourceVersion.jenkinsUrl,sourceVersion.jobName,sourceVersion.buildNumber);
+		}
 		return sourceVersion;
 	}
+
+	
 
 	public static SourceVersion parseVersionProps(String versionJson) {
 
 	/*	{"url": "origin git@github.com:YellLabs/eventsapi.git", "rev": "0.1.1-180-g928f3c6", "type": "git", "branch": "master"}  */
 		
 		SourceVersion sourceVersion = new SourceVersion();
-		JsonParser jsonParser = new JsonParser();
-		JsonObject jobject = jsonParser.parse(versionJson).getAsJsonObject();
-
+		
 		sourceVersion.name = (String) Play.configuration.get("application.name");
 		sourceVersion.version = (String) Play.configuration.get("application.version");
+		
+		JsonParser jsonParser = new JsonParser();
+		if(versionJson == null)
+		{
+			// no props provided
+			sourceVersion.status = "no version props";
+			return sourceVersion;
+		}
+		
+		JsonObject jsonObject = jsonParser.parse(versionJson).getAsJsonObject();
 
+		
 		sourceVersion.status = "ok";
 		
 		sourceVersion.buildNumber = null;
@@ -180,30 +171,21 @@ rl": null} */
 
 		sourceVersion.jenkinsUrl = null;
 
-		JsonElement jsonElement = jobject.get("type");
-		if(!jsonElement.isJsonNull())
-			sourceVersion.sourceControlSystem = jsonElement.getAsString();
-
-		jsonElement = jobject.get("rev");
-		if(!jsonElement.isJsonNull())
-			sourceVersion.sourceControlRevision = jsonElement.getAsString();
-
-		jsonElement = jobject.get("branch");
-		if(!jsonElement.isJsonNull())
-			sourceVersion.sourceControlBranch = jsonElement.getAsString();
+		sourceVersion.sourceControlSystem = JSONHelper.getValueIfExists(jsonObject,"type");
+		sourceVersion.sourceControlRevision = JSONHelper.getValueIfExists(jsonObject,"rev");
+		sourceVersion.sourceControlBranch = JSONHelper.getValueIfExists(jsonObject,"branch");
 
 		// construct build URL
 		/* https://github.com/YellLabs/eventsapi/commit/0.1.1-180-g928f3c6 
 		 * from 
 		 * "url": "origin git@github.com:YellLabs/eventsapi.git" & "rev": "0.1.1-180-g928f3c6" */
-		jsonElement = jobject.get("url");
-		if(!jsonElement.isJsonNull()){
-			String url = jsonElement.getAsString();
+		String url = JSONHelper.getValueIfExists(jsonObject,"url");
+		if(url!=null && sourceVersion.sourceControlRevision != null)
+		{
 			url = url.replace("origin git@github.com:", "https://github.com/");
 			// remove .git ref
 			url = url.replace(".git", "");
 			sourceVersion.buildUrl = url+"/commit/"+sourceVersion.sourceControlRevision;
-			
 		}
 			
 		
