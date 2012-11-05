@@ -2,6 +2,7 @@ package controllers.playmodutils;
 
 import static consts.playmodutils.APIConsts.HTTP_STATUS_NOT_IMPLEMENTED;
 import static consts.playmodutils.APIConsts.JSON_CONTENT_TYPE;
+import static utils.playmodutils.ErrorHelper.getMessage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,9 +13,7 @@ import play.Logger;
 import play.mvc.Controller;
 import play.mvc.Http.Header;
 import play.mvc.Http.Response;
-import static utils.playmodutils.ErrorHelper.getMessage;
 import utils.playmodutils.MIMEParse;
-import utils.playmodutils.ThreadCopy;
 import exceptions.playmodutils.InvalidAPIControllerConfigException;
 
 /**
@@ -23,24 +22,8 @@ import exceptions.playmodutils.InvalidAPIControllerConfigException;
  * ContentTypeSuggester is constructed per Controller with its own values for
  * resource name space and versions/mimeTypes supported, and the public fields
  * are set on interception of the request: Usage is always as follows for each
- * controller:
- * 
- * private static ContentTypeSuggester contentTypeSuggester = new
- * ContentTypeSuggester(supportedResourceVersions, resourceNamespace);
- * 
- * 
- * @Before public static void getSuggestedContentType() throws
- *         InvalidAPIControllerConfigException {
- *         contentTypeSuggester.suggestContentType(suggestedContentTypeHeader,
- *         requestedAcceptHeader, requestedContentType, resourceVersion);
- *         suggestedContentTypeHeader =
- *         contentTypeSuggester.suggestedContentTypeHeader;
- *         requestedAcceptHeader = contentTypeSuggester.requestedAcceptHeader;
- *         requestedContentType = contentTypeSuggester.requestedContentType;
- *         resourceVersion = contentTypeSuggester.resourceVersion; }
- * 
- * @author indy
- * 
+ * controller.
+
  */
 public class ContentTypeSuggester extends Controller {
 
@@ -58,9 +41,7 @@ public class ContentTypeSuggester extends Controller {
 
 		if (acceptHeader != null && acceptHeader.toString().split("json").length > 2) {
 			response.status = HTTP_STATUS_NOT_IMPLEMENTED;
-			ErrorMessage message = new ErrorMessage("CAPI_CLI_ERR_0004", getMessage("CAPI_CLI_ERR_0004"));
-			ErrorReport report = new ErrorReport(message);
-			Controller.renderJSON(report);
+			Controller.renderJSON(new ErrorReport(new ErrorMessage("CAPI_CLI_ERR_0004", getMessage("CAPI_CLI_ERR_0004"))));
 		}
 	}
 
@@ -81,18 +62,6 @@ public class ContentTypeSuggester extends Controller {
 		// now append the application/json catch all
 		mimeTypesSupported.add(JSON_CONTENT_TYPE);
 		return mimeTypesSupported;
-	}
-
-	private static String getLatestContentType(List<String> mimeTypesSupported) throws InvalidAPIControllerConfigException {
-		// return first content type in the list, the latest and greatest!
-		String latestContentType = mimeTypesSupported.get(0);
-		// if no content type found this resource controller has not been
-		// configured correctly
-		if (latestContentType == null) {
-			Logger.error(getMessage("CAPI_SRV_ERR_0004"));
-			throw new InvalidAPIControllerConfigException();
-		}
-		return latestContentType;
 	}
 
 	/*
@@ -164,7 +133,7 @@ public class ContentTypeSuggester extends Controller {
 		// if suggested content type is generic json or contains no identified
 		// version (search for hypen in header) default to latest version
 		if (suggestedContentTypeHeader.equals(JSON_CONTENT_TYPE) || !suggestedContentTypeHeader.contains("-")) {
-			suggestedContentTypeHeader = ContentTypeSuggester.getLatestContentType(mimeTypesSupported);
+			suggestedContentTypeHeader = mimeTypesSupported.get(0);;
 		}
 		// extract explicit version number of suggested content type if
 		// specified

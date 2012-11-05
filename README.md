@@ -29,6 +29,22 @@ Returns the version type of a project
 
 Changelog
 =========
+What's new in version 0.1.15
+----------------------------
+* Fixed concurrency problems in Controllers.
+
+Users of this version must remove ContentTypeSuggester from controllers and change method *getSuggestedContentType()* to be:
+
+
+    @Before
+    public static void getSuggestedContentType() throws InvalidAPIControllerConfigException {
+          ThreadCopy.set(ContentTypeSuggester.suggestContentType(supportedResourceVersions, resourceNamespace));
+    }
+
+To access the old controller fields *suggestedContentTypeHeader*, *requestedAcceptHeader*, *requestedContentType* or *resourceVersion*, you must use the new Thread-safe version like:
+
+    ThreadCopy.getResourceVersion()
+
 What's new in version 0.1.13
 ----------------------------
 * Tidied up routes file to be more consistent. 
