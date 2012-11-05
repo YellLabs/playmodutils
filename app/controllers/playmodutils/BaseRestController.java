@@ -13,21 +13,18 @@ import play.mvc.results.Error;
 import play.mvc.results.NotFound;
 import utils.playmodutils.ErrorHelper;
 import utils.playmodutils.SourceVersionHelper;
+import utils.playmodutils.ThreadVar;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+
 /* This is a generic Rest Controller to make interaction with the other API's a straightforwards process */
 
 public class BaseRestController extends Controller {
 
-	public static String suggestedContentTypeHeader;
-	public static String requestedContentType;
-	public static String requestedAcceptHeader;
-	public static String resourceVersion;
-	
 	private static SourceVersion sourceVersion;
 
 	protected static void validatePagingParams(Integer startPage, Integer count) {
@@ -140,8 +137,8 @@ public class BaseRestController extends Controller {
 		// append Vary: Accept to all responses
 		response.headers.put("Vary", new Header("Vary","Accept"));
 		
-		response.contentType = suggestedContentTypeHeader+ContentTypeSuggester.contentTypeSuffix;
-	}	
+		response.contentType = ThreadVar.getSuggestedContentTypeHeader() + ContentTypeSuggester.contentTypeSuffix;
+	}
 	
 	/**
      * Send a 404 Not Found response
@@ -226,5 +223,4 @@ public class BaseRestController extends Controller {
     	request.format="json";
     	throw new Error("Internal Error");
     }
-	
 }
