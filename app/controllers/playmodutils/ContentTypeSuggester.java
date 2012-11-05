@@ -1,23 +1,20 @@
 package controllers.playmodutils;
 
+import static consts.playmodutils.APIConsts.HTTP_STATUS_NOT_IMPLEMENTED;
+import static consts.playmodutils.APIConsts.JSON_CONTENT_TYPE;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import consts.playmodutils.APIConsts;
-
 import models.playmodutils.ErrorMessage;
 import models.playmodutils.ErrorReport;
-
 import play.Logger;
-import play.mvc.Before;
 import play.mvc.Controller;
 import play.mvc.Http.Header;
 import play.mvc.Http.Response;
-
-import utils.playmodutils.ErrorHelper;
+import static utils.playmodutils.ErrorHelper.getMessage;
 import utils.playmodutils.MIMEParse;
-import utils.playmodutils.ThreadVar;
-
+import utils.playmodutils.ThreadCopy;
 import exceptions.playmodutils.InvalidAPIControllerConfigException;
 
 /**
@@ -47,22 +44,9 @@ import exceptions.playmodutils.InvalidAPIControllerConfigException;
  */
 public class ContentTypeSuggester extends Controller {
 
-	private List<String> mimeTypesSupported = null;
-	private String[] supportedResourceVersions = null;
-	private String resourceNamespace = null;
+	public static final String CONTENT_TYPE_SUFFIX = "; charset=utf-8";
 
-	private String requestedContentType;
-	private String requestedAcceptHeader;
-	private String suggestedContentTypeHeader;
-	private String resourceVersion;
-	public static final String contentTypeSuffix = "; charset=utf-8";
-
-	public ContentTypeSuggester(String[] supportedResourceVersions, String resourceNamespace) {
-		this.supportedResourceVersions = supportedResourceVersions;
-		this.resourceNamespace = resourceNamespace;
-	}
-
-	public void validateAcceptHeader(Response response, Header acceptHeader) {
+	private static void validateAcceptHeader(Response response, Header acceptHeader) {
 		// accept header provided, inspect to see if a specific version
 		// has been requested.
 		// Examples:
@@ -73,8 +57,8 @@ public class ContentTypeSuggester extends Controller {
 		// only one value for acceptHeader should be provided
 
 		if (acceptHeader != null && acceptHeader.toString().split("json").length > 2) {
-			response.status = APIConsts.HTTP_STATUS_NOT_IMPLEMENTED;
-			ErrorMessage message = new ErrorMessage("CAPI_CLI_ERR_0004", ErrorHelper.getMessage("CAPI_CLI_ERR_0004"));
+			response.status = HTTP_STATUS_NOT_IMPLEMENTED;
+			ErrorMessage message = new ErrorMessage("CAPI_CLI_ERR_0004", getMessage("CAPI_CLI_ERR_0004"));
 			ErrorReport report = new ErrorReport(message);
 			Controller.renderJSON(report);
 		}
@@ -87,40 +71,25 @@ public class ContentTypeSuggester extends Controller {
 	 * entire list of supported versions including latest) - resourceNamespace
 	 * (This is the namespace prefix added to uniquely identify the resouce)
 	 */
-	public List<String> getMimeTypesSupported() {
-		// only construct this list of mime types once for the application
-		if (mimeTypesSupported == null) {
-			// construct list
-			// mimeTypesSupported = Arrays
-			// .asList(StringUtils
-			// .split("application/vnd.yell.deals.deal-v1+json,application/vnd.yell.deals.deal+json,application/json",
-			// ','));
-			mimeTypesSupported = new ArrayList<String>();
-			for (int i = 0; i < supportedResourceVersions.length; i++) {
-				String version = supportedResourceVersions[i];
-				// construct content type
-				String contentType = "application/" + resourceNamespace + "-" + version + "+json";
-				mimeTypesSupported.add(contentType);
-			}
-			// now append the application/namespace+json catch all
-			String contentType = "application/" + resourceNamespace + "+json";
-			mimeTypesSupported.add(contentType);
-			mimeTypesSupported.add(APIConsts.JSON_CONTENT_TYPE);
-			// now append the application/json catch all
-			mimeTypesSupported.add(APIConsts.JSON_CONTENT_TYPE);
-
+	private static List<String> getMimeTypesSupported(String[] supportedResourceVersions, String resourceNamespace) {
+		List<String> mimeTypesSupported = new ArrayList<String>();
+		for (String version : supportedResourceVersions) {
+			mimeTypesSupported.add("application/" + resourceNamespace + "-" + version + "+json");
 		}
+		// now append the application/namespace+json catch all
+		mimeTypesSupported.add("application/" + resourceNamespace + "+json");
+		// now append the application/json catch all
+		mimeTypesSupported.add(JSON_CONTENT_TYPE);
 		return mimeTypesSupported;
 	}
 
-	public String getLatestContentType() throws InvalidAPIControllerConfigException {
+	private static String getLatestContentType(List<String> mimeTypesSupported) throws InvalidAPIControllerConfigException {
 		// return first content type in the list, the latest and greatest!
-		String latestContentType = this.getMimeTypesSupported().get(0);
+		String latestContentType = mimeTypesSupported.get(0);
 		// if no content type found this resource controller has not been
 		// configured correctly
 		if (latestContentType == null) {
-			String message = ErrorHelper.getMessage("CAPI_SRV_ERR_0004");
-			Logger.error(message);
+			Logger.error(getMessage("CAPI_SRV_ERR_0004"));
 			throw new InvalidAPIControllerConfigException();
 		}
 		return latestContentType;
@@ -136,42 +105,28 @@ public class ContentTypeSuggester extends Controller {
 	 * suggestedContentType can then be used to render appropriate responses
 	 * back to the client.
 	 */
-	public void suggestContentType() throws InvalidAPIControllerConfigException {
+	public static SuggestedVersion suggestContentType(String[] supportedResourceVersions, String resourceNamespace)
+			throws InvalidAPIControllerConfigException {
+
+		String requestedAcceptHeader = null;
+		String suggestedContentTypeHeader = null;
 
 		Header acceptHeader = request.headers.get("accept");
+
+		List<String> mimeTypesSupported = ContentTypeSuggester.getMimeTypesSupported(supportedResourceVersions, resourceNamespace);
 
 		// GET or DELETE requests MUST provide an Accept header
 		if (request.method.equalsIgnoreCase("GET") | request.method.equalsIgnoreCase("DELETE")) {
 			// check for accept header
 			if (acceptHeader == null) {
 				// error missing accept header
-				response.status = APIConsts.HTTP_STATUS_NOT_IMPLEMENTED;
-				ErrorMessage message = new ErrorMessage("CAPI_CLI_ERR_0005", ErrorHelper.getMessage("CAPI_CLI_ERR_0005"));
-				ErrorReport report = new ErrorReport(message);
-				renderJSON(report);
+				response.status = HTTP_STATUS_NOT_IMPLEMENTED;
+				renderJSON(new ErrorReport(new ErrorMessage("CAPI_CLI_ERR_0005", getMessage("CAPI_CLI_ERR_0005"))));
 			} else {
 				// accept header provided
-				this.validateAcceptHeader(response, acceptHeader);
+				ContentTypeSuggester.validateAcceptHeader(response, acceptHeader);
 				requestedAcceptHeader = acceptHeader.value();
-				try {
-					suggestedContentTypeHeader = MIMEParse.bestMatch(this.getMimeTypesSupported(), requestedAcceptHeader);
-					if (suggestedContentTypeHeader == null | suggestedContentTypeHeader.equals("")) {
-						// unsupported content type
-						response.status = APIConsts.HTTP_STATUS_NOT_IMPLEMENTED;
-						ErrorMessage message = new ErrorMessage("CAPI_CLI_ERR_0006", ErrorHelper.getMessage("CAPI_CLI_ERR_0006",
-								requestedAcceptHeader));
-						ErrorReport report = new ErrorReport(message);
-						renderJSON(report);
-
-					}
-				} catch (Exception e) {
-					// error deriving content type
-					response.status = APIConsts.HTTP_STATUS_NOT_IMPLEMENTED;
-					ErrorMessage message = new ErrorMessage("CAPI_CLI_ERR_0006", ErrorHelper.getMessage("CAPI_CLI_ERR_0006",
-							requestedAcceptHeader));
-					ErrorReport report = new ErrorReport(message);
-					renderJSON(report);
-				}
+				suggestedContentTypeHeader = getSuggestedContentTypeHeader(requestedAcceptHeader, mimeTypesSupported);
 			}
 		}
 
@@ -182,18 +137,17 @@ public class ContentTypeSuggester extends Controller {
 		// same as accept header
 		// if content type has defaulted to text/html default to same as accept
 		// header
-		this.validateAcceptHeader(response, acceptHeader);
+		ContentTypeSuggester.validateAcceptHeader(response, acceptHeader);
 		if (contentType.equalsIgnoreCase("text/html") || acceptHeader != null)
 			contentType = acceptHeader.value();
 
+		String requestedContentType = null;
 		if (request.method.equalsIgnoreCase("POST") | request.method.equalsIgnoreCase("PUT")) {
 			// check for content type header
-			if (contentType == null | contentType.equals("")) {
+			if (nullOrEmpty(contentType)) {
 				// error missing content header
-				response.status = APIConsts.HTTP_STATUS_NOT_IMPLEMENTED;
-				ErrorMessage message = new ErrorMessage("CAPI_CLI_ERR_0007", ErrorHelper.getMessage("CAPI_CLI_ERR_0007"));
-				ErrorReport report = new ErrorReport(message);
-				renderJSON(report);
+				response.status = HTTP_STATUS_NOT_IMPLEMENTED;
+				renderJSON(new ErrorReport(new ErrorMessage("CAPI_CLI_ERR_0007", getMessage("CAPI_CLI_ERR_0007"))));
 			} else {
 				// content type provided, inspect to see if a specific version
 				// has been requested.
@@ -203,63 +157,63 @@ public class ContentTypeSuggester extends Controller {
 				// Content-Type: application/vnd.yell.deals.category-v1+json
 
 				requestedContentType = contentType;
-				try {
-					suggestedContentTypeHeader = MIMEParse.bestMatch(this.getMimeTypesSupported(), requestedContentType);
-					if (suggestedContentTypeHeader == null | suggestedContentTypeHeader.equals("")) {
-						// unsupported content type
-						response.status = APIConsts.HTTP_STATUS_NOT_IMPLEMENTED;
-						ErrorMessage message = new ErrorMessage("CAPI_CLI_ERR_0006", ErrorHelper.getMessage("CAPI_CLI_ERR_0006",
-								requestedContentType));
-						ErrorReport report = new ErrorReport(message);
-						renderJSON(report);
-
-					}
-				} catch (Exception e) {
-					// error deriving content type
-					response.status = APIConsts.HTTP_STATUS_NOT_IMPLEMENTED;
-					ErrorMessage message = new ErrorMessage("CAPI_CLI_ERR_0006", ErrorHelper.getMessage("CAPI_CLI_ERR_0006",
-							requestedContentType));
-					ErrorReport report = new ErrorReport(message);
-					renderJSON(report);
-				}
+				suggestedContentTypeHeader = getSuggestedContentTypeHeader(requestedContentType, mimeTypesSupported);
 			}
 		}
 
-		// if suggested content type is generic json
-		// default to latest version
-		if (suggestedContentTypeHeader.equals(APIConsts.JSON_CONTENT_TYPE)) {
-			suggestedContentTypeHeader = this.getLatestContentType();
-		}
-		// if suggested content type contains no identified version (search for
-		// hypen in header)
-		// default to latest version
-		if (!suggestedContentTypeHeader.contains("-")) {
-			suggestedContentTypeHeader = this.getLatestContentType();
+		// if suggested content type is generic json or contains no identified
+		// version (search for hypen in header) default to latest version
+		if (suggestedContentTypeHeader.equals(JSON_CONTENT_TYPE) || !suggestedContentTypeHeader.contains("-")) {
+			suggestedContentTypeHeader = ContentTypeSuggester.getLatestContentType(mimeTypesSupported);
 		}
 		// extract explicit version number of suggested content type if
 		// specified
 		// if not specified default to latest version
 		// application/vnd.yell.deals.deal-v1+json
 
+		String resourceVersion = getResourceVersion(suggestedContentTypeHeader);
+
+		Logger.info("Requested accept header: %s Requested content type: %s - Suggested content type: %s", requestedAcceptHeader,
+				requestedContentType, suggestedContentTypeHeader);
+
+		return new SuggestedVersion(suggestedContentTypeHeader, requestedAcceptHeader, requestedContentType, resourceVersion);
+	}
+
+	private static String getSuggestedContentTypeHeader(String requestHeader, List<String> mimeTypesSupported) {
+		String suggestedContentTypeHeader = null;
+		try {
+			suggestedContentTypeHeader = MIMEParse.bestMatch(mimeTypesSupported, requestHeader);
+			if (nullOrEmpty(suggestedContentTypeHeader)) {
+				// unsupported content type
+				response.status = HTTP_STATUS_NOT_IMPLEMENTED;
+				renderJSON(new ErrorReport(new ErrorMessage("CAPI_CLI_ERR_0006", getMessage("CAPI_CLI_ERR_0006", requestHeader))));
+
+			}
+
+		} catch (Exception e) {
+			// error deriving content type
+			response.status = HTTP_STATUS_NOT_IMPLEMENTED;
+			renderJSON(new ErrorReport(new ErrorMessage("CAPI_CLI_ERR_0006", getMessage("CAPI_CLI_ERR_0006", requestHeader))));
+		}
+
+		return suggestedContentTypeHeader;
+	}
+
+	private static boolean nullOrEmpty(String str) {
+		return str == null | str.equals("");
+	}
+
+	private static String getResourceVersion(String suggestedContentTypeHeader) throws InvalidAPIControllerConfigException {
 		int posOfHyphen = suggestedContentTypeHeader.indexOf('-');
 		int posOfPlus = suggestedContentTypeHeader.indexOf('+');
 		if (posOfHyphen > 0 & posOfPlus > 0) {
 			// version
-			resourceVersion = suggestedContentTypeHeader.substring(posOfHyphen + 1, posOfPlus);
+			return suggestedContentTypeHeader.substring(posOfHyphen + 1, posOfPlus);
 		} else {
 			// can't find version in content type!
-			String message = ErrorHelper.getMessage("CAPI_SRV_ERR_0011", suggestedContentTypeHeader);
+			String message = getMessage("CAPI_SRV_ERR_0011", suggestedContentTypeHeader);
 			Logger.error(message, suggestedContentTypeHeader);
 			throw new InvalidAPIControllerConfigException();
 		}
-
-		Logger.info("Requested accept header: %s Requested content type: %s - Suggested content type: %s", requestedAcceptHeader,
-				requestedContentType, suggestedContentTypeHeader);
-		
-		ThreadVar.setSuggestedContentTypeHeader(suggestedContentTypeHeader);
-		ThreadVar.setRequestedAcceptHeader(requestedAcceptHeader);
-		ThreadVar.setRequestedContentType(requestedContentType);
-		ThreadVar.setResourceVersion(resourceVersion);
-
 	}
 }

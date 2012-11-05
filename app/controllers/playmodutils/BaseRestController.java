@@ -13,7 +13,7 @@ import play.mvc.results.Error;
 import play.mvc.results.NotFound;
 import utils.playmodutils.ErrorHelper;
 import utils.playmodutils.SourceVersionHelper;
-import utils.playmodutils.ThreadVar;
+import utils.playmodutils.ThreadCopy;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -137,7 +137,7 @@ public class BaseRestController extends Controller {
 		// append Vary: Accept to all responses
 		response.headers.put("Vary", new Header("Vary","Accept"));
 		
-		response.contentType = ThreadVar.getSuggestedContentTypeHeader() + ContentTypeSuggester.contentTypeSuffix;
+		response.contentType = ThreadCopy.getSuggestedContentTypeHeader() + ContentTypeSuggester.CONTENT_TYPE_SUFFIX;
 	}
 	
 	/**
