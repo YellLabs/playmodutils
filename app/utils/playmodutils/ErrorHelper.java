@@ -1,5 +1,11 @@
 package utils.playmodutils;
 
+import static utils.playmodutils.ErrorHelper.getMessage;
+
+import java.util.Arrays;
+
+import models.playmodutils.ErrorMessage;
+import models.playmodutils.ErrorReport;
 import play.i18n.Messages;
 
 
@@ -20,4 +26,11 @@ public class ErrorHelper {
          return (String)key + ':' + Messages.get(key, args);
          
     }
+    
+	public static ErrorReport errorReport(Object... messageFields) {
+		String key = messageFields[0].toString();
+		Object[] args = Arrays.copyOfRange(messageFields, 1, messageFields.length);
+
+		return new ErrorReport(new ErrorMessage(key, getMessage(key, args)));
+	}
 }

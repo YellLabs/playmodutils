@@ -29,6 +29,14 @@ Returns the version type of a project
 
 Changelog
 =========
+What's new in version 0.1.16
+----------------------------
+* Added new controller ExceptionHandler that can be used to improve the error message for all exceptions thrown from controllers. To use it append 
+
+    @With(ExceptionHandler.class)
+
+to the controller.
+
 What's new in version 0.1.15
 ----------------------------
 * Fixed concurrency problems in Controllers.

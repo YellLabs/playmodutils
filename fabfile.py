@@ -14,7 +14,7 @@ except ImportError:
 # global environment settings
 env.lang = "play"
 env.project_name = "playmodutils"
-env.project_version= "0.1.15"
+env.project_version= "0.1.16"
 env.scm_type = "git"
 env.scm_url = "git@github.com:YellLabs/playmodutils.git"
 env.rsync_exclude = ["modules/", "lib/", "tmp/", "logs/"]
