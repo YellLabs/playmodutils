@@ -10,7 +10,7 @@ import utils.playmodutils.ErrorHelper;
 public class ExceptionHandler extends Controller {
 	@Catch(Exception.class)
 	public static void internalError(Exception ex) {
-		Logger.error("Unexpected error: %s", ex);
+		Logger.error(ex, "Unexpected error");
 		response.status = BAD_REQUEST;
 		renderJSON(errorReport("CAPI_CLI_ERR_0009", ex.getMessage()));
 	}
