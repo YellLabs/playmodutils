@@ -85,4 +85,16 @@ public class GeoHelper {
 		return searchDistanceKm / (2.0 * PI * 6371.0) * 360.0 * (PI / 180.0);
 	}
 
+	/**
+	 * radians to degrees conversion examples: 
+	 * 2*pi (about 6.28) radians = 260 degrees
+	 * pi   (about 3.14) radians = 180 degrees
+	 * pi/6 (about 0.52) radians = 30 degrees
+	 * 
+	 */
+	public static double convertMtrsToRadians(Integer searchDistanceMtrs, Double lat) {
+		double searchDistanceKm = searchDistanceMtrs/1000.0;
+		return searchDistanceKm/(111.12 * Math.abs(Math.cos(Math.toRadians(lat))));	
+	}
+	
 }
